@@ -84,7 +84,9 @@ def get_feature_packet(label_pcap,payload_len):
         
         if 'Ethernet' in packet:
             packet['Ethernet'].src = "00:00:00:00:00:00"
-            packet['Ethernet'].det = "00:00:00:00:00:00"
+            packet['Ethernet'].dst = "00:00:00:00:00:00"
+        if 'CookedLinux' in packet:
+            packet['CookedLinux'].src = b'\x00\x00\x00\x00\x00\x00\x00\x00'
         if 'IP' in packet:
             packet['IP'].src = "0.0.0.0"
             packet['IP'].dst = "0.0.0.0"
@@ -100,7 +102,7 @@ def get_feature_packet(label_pcap,payload_len):
         packet_data_string = bigram_generation(new_packet_string, packet_len=payload_len, flag = True, num_interval = 2)
         
         flow_data_string += packet_data_string
-        flow_data_string += " "
+        flow_data_string += " [pck] "
         
         num_packet += 1
         if num_packet >= 32:
