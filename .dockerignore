@@ -1,0 +1,30 @@
+.git
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# caches
+.cache/
+.ipynb_checkpoints/
+
+# gros dossiers: on les montera en volume
+datasets/
+finetune_dataset/
+outputs/
+
+# gros binaires (on les montera au runtime)
+assets/*.bin
+assets/*.pt
+assets/*.pth
+models/*.bin
+models/*.pt
+models/*.pth
+*.ckpt
+
+# si tu as des pcap/archives
+*.pcap
+*.pcapng
+*.zip
+*.tar
+*.tar.gz

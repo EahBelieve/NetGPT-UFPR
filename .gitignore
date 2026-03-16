@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+*.bin
+*.log
+*.csv
+datasets/
+finetune_dataset*/
+middle_*/
+outputs_*/
+data/
+assets/
