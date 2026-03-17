@@ -21,3 +21,8 @@ dependencies:
       - flowcontainer
       - tqdm
       - regex
+      - psutil
+      - xlrd
+      - scikit-learn
+      - pandas
+      - scipy
