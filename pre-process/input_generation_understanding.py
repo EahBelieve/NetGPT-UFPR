@@ -103,9 +103,9 @@ def get_feature_packet(label_pcap,payload_len):
                 
                 proto = int.from_bytes(raw_bytes[14:16], 'big')
                 if proto == 0x0800 and len(raw_bytes) >= 34:
-                    # Zero IP src (bytes 26-29) and dst (bytes 30-33)
-                    raw_bytes[26:30] = b'\x00' * 4
-                    raw_bytes[30:34] = b'\x00' * 4
+                    # Zero IP src (bytes 28-31) and dst (bytes 32-35)
+                    raw_bytes[28:32] = b'\x00' * 4
+                    raw_bytes[32:36] = b'\x00' * 4
                     
                     ihl = (raw_bytes[16] & 0x0F) * 4
                     ip_proto = raw_bytes[25]
