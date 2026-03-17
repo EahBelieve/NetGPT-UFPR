@@ -82,20 +82,44 @@ def get_feature_packet(label_pcap,payload_len):
     num_packet = 0
     for packet in pcap_reader:
         
-        if 'Ethernet' in packet:
+        raw_bytes = bytearray(bytes(packet))
+        
+        if 'Ethernet' in packet and 'IP' in packet:
             packet['Ethernet'].src = "00:00:00:00:00:00"
             packet['Ethernet'].dst = "00:00:00:00:00:00"
-        if 'CookedLinux' in packet:
-            packet['CookedLinux'].src = b'\x00\x00\x00\x00\x00\x00\x00\x00'
-        if 'IP' in packet:
-            packet['IP'].src = "0.0.0.0"
-            packet['IP'].dst = "0.0.0.0"
-        if 'TCP' in packet: 
-            packet['TCP'].sport = 0
-            packet['TCP'].dport = 0
+            if 'IP' in packet:
+                packet['IP'].src = "0.0.0.0"
+                packet['IP'].dst = "0.0.0.0"
+            if 'TCP' in packet:
+                packet['TCP'].sport = 0
+                packet['TCP'].dport = 0
+            data = binascii.hexlify(bytes(packet))
+        else:
+            # SLL (Linux cooked capture) — anonymize at byte level
+            # SLL header: pkttype(2) + arphrd(2) + addrlen(2) + addr(8) + proto(2) = 16 bytes
+            if len(raw_bytes) >= 16:
+                # Zero MAC address field (bytes 6-13)
+                raw_bytes[6:14] = b'\x00' * 8
+                
+                proto = int.from_bytes(raw_bytes[14:16], 'big')
+                if proto == 0x0800 and len(raw_bytes) >= 34:
+                    # Zero IP src (bytes 26-29) and dst (bytes 30-33)
+                    raw_bytes[26:30] = b'\x00' * 4
+                    raw_bytes[30:34] = b'\x00' * 4
+                    
+                    ihl = (raw_bytes[16] & 0x0F) * 4
+                    ip_proto = raw_bytes[25]
+                    tcp_start = 16 + ihl
+                    
+                    if ip_proto == 6 and len(raw_bytes) >= tcp_start + 4:  # TCP
+                        raw_bytes[tcp_start:tcp_start+2] = b'\x00' * 2
+                        raw_bytes[tcp_start+2:tcp_start+4] = b'\x00' * 2
+                    elif ip_proto == 17 and len(raw_bytes) >= tcp_start + 4:  # UDP
+                        raw_bytes[tcp_start:tcp_start+2] = b'\x00' * 2
+                        raw_bytes[tcp_start+2:tcp_start+4] = b'\x00' * 2
+            
+            data = binascii.hexlify(bytes(raw_bytes))
         
-        packet_data = packet
-        data = (binascii.hexlify(bytes(packet_data)))
         packet_string = data.decode()
         new_packet_string = packet_string[0:]
         
