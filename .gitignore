@@ -10,3 +10,5 @@ middle_*/
 outputs_*/
 data/
 assets/
+__pycache__/
+*.pyc
