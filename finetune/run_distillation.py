@@ -56,7 +56,7 @@ from uer.utils.seed import set_seed
 from uer.utils.logging import init_logger
 from uer.utils.misc import pooling
 from uer.model_saver import save_model
-from uer.opts import tokenizer_opts
+from uer.opts import tokenizer_opts, model_opts
 
 #  Classifier — identical to run_understanding.py
 
@@ -324,11 +324,10 @@ def main():
 
     # Tokenizer
     tokenizer_opts(parser)
+    model_opts(parser)
 
     # Model
     parser.add_argument("--labels_num", type=int, default=2)
-    parser.add_argument("--pooling", choices=["mean", "max", "first", "last"],
-                        default="mean")
 
     # Training
     parser.add_argument("--epochs_num", type=int, default=5)
