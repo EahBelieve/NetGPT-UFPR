@@ -93,11 +93,6 @@ class Classifier(nn.Module):
 #  Focal Loss
 
 class FocalLoss(nn.Module):
-    """
-    Focal Loss (Lin et al., 2017).
-    FL(p_t) = -(1-p_t)^gamma * log(p_t)
-    Down-weights easy examples, focuses on hard attack flows.
-    """
     def __init__(self, gamma=2.0, reduction="mean"):
         super().__init__()
         self.gamma = gamma
