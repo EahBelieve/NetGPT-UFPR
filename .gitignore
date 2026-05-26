@@ -12,3 +12,14 @@ data/
 assets/
 __pycache__/
 *.pyc
+finetune/run_understanding.py.bak
+finetune/run_understanding_original.py
+pruning_v2.tar.gz
+distill_log.txt
+slim_distill_newds_v2.txt
+slim_test1_finetune.txt
+slim_test_posfix.txt
+slim_sweep_dff.txt
+test_6L12H_newds.txt
+models/gpt2/slim_config_ff*.json
+*.Zone.Identifier

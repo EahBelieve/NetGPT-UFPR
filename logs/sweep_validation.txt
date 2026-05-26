@@ -1,0 +1,74 @@
+========== 6L/12H/d_ff=768 ==========
+finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 14:46:20,022 INFO] Batch size: 16
+[2026-05-19 14:46:20,022 INFO] The number of training instances: 1278
+[2026-05-19 14:46:20,616 INFO] Start training.
+  [Shape-aware load] 82/104 params loaded, 22 random-init
+  0%|          | 0/10 [00:00<?, ?it/s][2026-05-19 14:46:20,618 INFO] 10
+[2026-05-19 14:46:28,611 INFO] Acc. (Correct/Total): 0.9375 (150/160) 
+ 10%|█         | 1/10 [00:08<01:15,  8.37s/it][2026-05-19 14:46:28,983 INFO] 10
+[2026-05-19 14:46:35,231 INFO] Acc. (Correct/Total): 0.9625 (154/160) 
+ 20%|██        | 2/10 [00:14<00:58,  7.34s/it][2026-05-19 14:46:35,601 INFO] 10
+[2026-05-19 14:46:41,943 INFO] Acc. (Correct/Total): 0.9563 (153/160) 
+ 30%|███       | 3/10 [00:21<00:48,  6.88s/it][2026-05-19 14:46:41,944 INFO] 10
+[2026-05-19 14:46:48,428 INFO] Acc. (Correct/Total): 0.9437 (151/160) 
+ 40%|████      | 4/10 [00:27<00:40,  6.73s/it][2026-05-19 14:46:48,429 INFO] 10
+[2026-05-19 14:46:54,995 INFO] Acc. (Correct/Total): 0.9375 (150/160) 
+ 50%|█████     | 5/10 [00:34<00:33,  6.67s/it][2026-05-19 14:46:54,995 INFO] 10
+[2026-05-19 14:47:01,579 INFO] Acc. (Correct/Total): 0.9563 (153/160) 
+ 60%|██████    | 6/10 [00:40<00:26,  6.64s/it][2026-05-19 14:47:01,579 INFO] 10
+[2026-05-19 14:47:07,906 INFO] Acc. (Correct/Total): 0.9563 (153/160) 
+ 70%|███████   | 7/10 [00:47<00:19,  6.54s/it][2026-05-19 14:47:07,906 INFO] 10
+[2026-05-19 14:47:14,177 INFO] Acc. (Correct/Total): 0.9563 (153/160) 
+ 80%|████████  | 8/10 [00:53<00:12,  6.45s/it][2026-05-19 14:47:14,177 INFO] 10
+[2026-05-19 14:47:20,511 INFO] Acc. (Correct/Total): 0.9563 (153/160) 
+ 90%|█████████ | 9/10 [00:59<00:06,  6.42s/it][2026-05-19 14:47:20,512 INFO] 10
+[2026-05-19 14:47:26,793 INFO] Acc. (Correct/Total): 0.9563 (153/160) 
+100%|██████████| 10/10 [01:06<00:00,  6.37s/it]100%|██████████| 10/10 [01:06<00:00,  6.62s/it]
+[2026-05-19 14:47:26,794 INFO] Test set evaluation.
+finetune/run_understanding.py:380: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  args.model.load_state_dict(torch.load(args.output_model_path))
+[2026-05-19 14:47:28,071 INFO] Label 0: 0.987, 0.925, 0.955
+[2026-05-19 14:47:28,071 INFO] Label 1: 0.929, 0.987, 0.958
+[2026-05-19 14:47:28,072 INFO] Acc. (Correct/Total): 0.9563 (153/160) 
+tensor([[74,  1],
+        [ 6, 79]])
+
+========== 6L/12H/d_ff=1280 ==========
+finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 14:47:38,950 INFO] Batch size: 16
+[2026-05-19 14:47:38,950 INFO] The number of training instances: 1278
+[2026-05-19 14:47:39,313 INFO] Start training.
+  [Shape-aware load] 82/104 params loaded, 22 random-init
+  0%|          | 0/10 [00:00<?, ?it/s][2026-05-19 14:47:39,314 INFO] 10
+[2026-05-19 14:47:48,153 INFO] Acc. (Correct/Total): 0.9062 (145/160) 
+ 10%|█         | 1/10 [00:09<01:23,  9.24s/it][2026-05-19 14:47:48,552 INFO] 10
+[2026-05-19 14:47:55,474 INFO] Acc. (Correct/Total): 0.9625 (154/160) 
+ 20%|██        | 2/10 [00:16<01:04,  8.10s/it][2026-05-19 14:47:55,860 INFO] 10
+[2026-05-19 14:48:02,775 INFO] Acc. (Correct/Total): 0.9563 (153/160) 
+ 30%|███       | 3/10 [00:23<00:52,  7.56s/it][2026-05-19 14:48:02,775 INFO] 10
+[2026-05-19 14:48:09,711 INFO] Acc. (Correct/Total): 0.9500 (152/160) 
+ 40%|████      | 4/10 [00:30<00:43,  7.31s/it][2026-05-19 14:48:09,711 INFO] 10
+[2026-05-19 14:48:16,640 INFO] Acc. (Correct/Total): 0.9688 (155/160) 
+ 50%|█████     | 5/10 [00:37<00:36,  7.30s/it][2026-05-19 14:48:16,992 INFO] 10
+[2026-05-19 14:48:23,901 INFO] Acc. (Correct/Total): 0.9625 (154/160) 
+ 60%|██████    | 6/10 [00:44<00:28,  7.17s/it][2026-05-19 14:48:23,902 INFO] 10
+[2026-05-19 14:48:30,862 INFO] Acc. (Correct/Total): 0.9563 (153/160) 
+ 70%|███████   | 7/10 [00:51<00:21,  7.10s/it][2026-05-19 14:48:30,863 INFO] 10
+[2026-05-19 14:48:37,840 INFO] Acc. (Correct/Total): 0.9688 (155/160) 
+ 80%|████████  | 8/10 [00:58<00:14,  7.06s/it][2026-05-19 14:48:37,841 INFO] 10
+[2026-05-19 14:48:44,815 INFO] Acc. (Correct/Total): 0.9688 (155/160) 
+ 90%|█████████ | 9/10 [01:05<00:07,  7.03s/it][2026-05-19 14:48:44,815 INFO] 10
+[2026-05-19 14:48:51,771 INFO] Acc. (Correct/Total): 0.9688 (155/160) 
+100%|██████████| 10/10 [01:12<00:00,  7.01s/it]100%|██████████| 10/10 [01:12<00:00,  7.25s/it]
+[2026-05-19 14:48:51,772 INFO] Test set evaluation.
+finetune/run_understanding.py:380: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  args.model.load_state_dict(torch.load(args.output_model_path))
+[2026-05-19 14:48:53,031 INFO] Label 0: 0.987, 0.925, 0.955
+[2026-05-19 14:48:53,031 INFO] Label 1: 0.929, 0.987, 0.958
+[2026-05-19 14:48:53,031 INFO] Acc. (Correct/Total): 0.9563 (153/160) 
+tensor([[74,  1],
+        [ 6, 79]])
+

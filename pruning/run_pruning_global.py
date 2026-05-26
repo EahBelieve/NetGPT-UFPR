@@ -1,29 +1,27 @@
 """
-Global pruning for NetGPT — per-layer sparsity analysis.
+Global pruning for NetGPT — per-layer contribution to total pruning.
 
-Instead of enforcing the same sparsity on every row/layer,
-this script uses a SINGLE global threshold across the entire model.
-This reveals which layers are most/least redundant.
+Each layer's pruned weights shown as:
+  - Local%   : % of that layer's own weights pruned
+  - % modele : % of the TOTAL model weights pruned by this layer
+  - % prune  : % of ALL pruned weights that came from this layer
 
 Usage:
-    cd ~/NetGPT_work/
     python pruning/run_pruning_global.py \
-        --pretrained_model_path models/finetuned_model.bin \
+        --pretrained_model_path teacher_newds.bin \
         --config_path models/gpt2/config.json \
         --vocab_path models/encryptd_vocab.txt \
-        --train_path finetune_dataset/train_dataset.tsv \
-        --dev_path finetune_dataset/valid_dataset.tsv \
-        --test_path finetune_dataset/test_dataset.tsv \
-        --seq_length 64 --labels_num 2 --batch_size 32 \
-        --pooling mean --seed 42 \
-        --metric wanda --sparsity 0.5 \
-        --output_dir results/global_pruning
+        --train_path finetune_dataset_newds/train_dataset.tsv \
+        --dev_path finetune_dataset_newds/valid_dataset.tsv \
+        --test_path finetune_dataset_newds/test_dataset.tsv \
+        --seq_length 64 --labels_num 2 --pooling mean \
+        --metric pruner_zero --sparsity 0.5
 """
 
 import sys, os, copy, csv, argparse
 import torch
 import torch.nn as nn
-import numpy as np
+from collections import OrderedDict
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, project_root)
@@ -35,18 +33,31 @@ from uer.utils.seed import set_seed
 from uer.utils.logging import init_logger
 from uer.opts import finetune_opts, tokenizer_opts, adv_opts
 from finetune.run_understanding import (
-    Classifier, read_dataset, batch_loader, load_or_initialize_parameters
+    Classifier, read_dataset, batch_loader, evaluate,
+    load_or_initialize_parameters
 )
 from pruning.pruner import NetGPTPruner
 from pruning.metrics import METRICS
-from pruning.run_pruning import (
-    make_calibration_loader, evaluate_with_metrics, compute_model_size
-)
+
+
+def make_calibration_loader(dataset, n_calib, batch_size, seed=42):
+    import random
+    rng = random.Random(seed)
+    indices = list(range(len(dataset)))
+    rng.shuffle(indices)
+    calib_data = [dataset[i] for i in indices[:n_calib]]
+    src = torch.LongTensor([s[0] for s in calib_data])
+    tgt = torch.LongTensor([s[1] for s in calib_data])
+    seg = torch.LongTensor([s[2] for s in calib_data])
+    batches = []
+    for i in range(0, len(calib_data), batch_size):
+        batches.append((src[i:i+batch_size], tgt[i:i+batch_size],
+                        seg[i:i+batch_size], None))
+    return batches
 
 
 def prune_global(pruner):
     """GLOBAL pruning: single threshold across entire model."""
-    print(f"[Global] Computing scores for {len(pruner.linear_layers)} layers...")
     all_scores = []
     layer_meta = []
     for name, module in pruner.linear_layers.items():
@@ -66,11 +77,9 @@ def prune_global(pruner):
     if k == 0:
         return {}
     threshold = torch.kthvalue(all_cat, k).values.item()
-    print(f"[Global] Total: {total:,}, pruning {k:,} ({pruner.sparsity*100:.0f}%)")
-    print(f"[Global] Threshold: {threshold:.6f}")
 
     idx = 0
-    layer_sparsities = {}
+    layer_info = OrderedDict()
     total_pruned = 0
     for name, module, shape in layer_meta:
         n = shape[0] * shape[1]
@@ -79,28 +88,42 @@ def prune_global(pruner):
         module.weight.data *= mask
         pruner.masks[name] = mask
         zeros = (mask == 0).sum().item()
-        layer_sparsities[name] = {
+        layer_info[name] = {
             "shape": tuple(shape), "total": n,
-            "pruned": zeros, "sparsity": zeros / n,
+            "pruned": zeros, "sparsity_local": zeros / n,
         }
         total_pruned += zeros
         idx += n
-    print(f"[Global] Effective sparsity: {total_pruned/total*100:.2f}%")
-    return layer_sparsities
+
+    # Compute global percentages
+    for name in layer_info:
+        layer_info[name]["pct_of_total_pruned"] = (
+            layer_info[name]["pruned"] / total_pruned * 100
+            if total_pruned > 0 else 0
+        )
+        layer_info[name]["pct_of_total_model"] = (
+            layer_info[name]["pruned"] / total * 100
+        )
+
+    layer_info["__total__"] = {
+        "total_params": total,
+        "total_pruned": total_pruned,
+        "global_sparsity": total_pruned / total * 100,
+    }
+    return layer_info
 
 
 def classify_layer(name):
-    if "self_attn.linear_layers.0" in name: return "Attention Q"
-    elif "self_attn.linear_layers.1" in name: return "Attention K"
-    elif "self_attn.linear_layers.2" in name: return "Attention V"
-    elif "self_attn.final_linear" in name: return "Attention O"
+    if "self_attn.linear_layers.0" in name: return "Attn Q"
+    elif "self_attn.linear_layers.1" in name: return "Attn K"
+    elif "self_attn.linear_layers.2" in name: return "Attn V"
+    elif "self_attn.final_linear" in name: return "Attn Out"
     elif "feed_forward" in name:
-        return "FFN up" if "linear_1" in name or "w_1" in name else "FFN down"
-    elif "output_layer" in name: return "Output head"
+        return "FFN up" if "linear_1" in name else "FFN down"
     return "Other"
 
 
-def get_transformer_layer_idx(name):
+def get_layer_idx(name):
     parts = name.split(".")
     for i, part in enumerate(parts):
         if part == "transformer" and i + 1 < len(parts):
@@ -109,62 +132,131 @@ def get_transformer_layer_idx(name):
     return -1
 
 
-def print_analysis(layer_sparsities, label=""):
-    if not layer_sparsities: return
+def shorten_name(name):
+    s = name.replace("encoder.transformer.", "L")
+    s = s.replace(".self_attn.linear_layers.", ".attn.")
+    s = s.replace(".self_attn.final_linear", ".attn.out")
+    s = s.replace(".feed_forward.linear_1", ".ffn.up")
+    s = s.replace(".feed_forward.linear_2", ".ffn.down")
+    return s
 
-    print(f"\n{'='*80}")
-    print(f"  PER-LAYER SPARSITY — {label}")
-    print(f"{'='*80}")
-    print(f"  {'Layer':<50} {'Shape':>12} {'Sparsity':>10}")
-    print(f"  {'-'*72}")
-    for name, info in layer_sparsities.items():
-        sp = info['sparsity'] * 100
-        bar = "\u2588" * int(sp / 5) + "\u2591" * (20 - int(sp / 5))
-        print(f"  {name:<50} {info['shape'][0]}x{info['shape'][1]:>4} {sp:>6.1f}% {bar}")
 
-    print(f"\n{'='*80}")
-    print(f"  GROUPED BY TYPE — {label}")
-    print(f"{'='*80}")
-    groups = {}
-    for name, info in layer_sparsities.items():
+def print_results(layer_info, label=""):
+    if not layer_info:
+        return
+
+    totals = layer_info.get("__total__", {})
+    total_pruned = totals.get("total_pruned", 0)
+    total_params = totals.get("total_params", 0)
+    global_sparsity = totals.get("global_sparsity", 0)
+
+    # ===== TABLE 1: Per-layer =====
+    print(f"\n{'='*90}")
+    print(f"  PRUNING GLOBAL — {label}")
+    print(f"  Sparsity globale: {global_sparsity:.2f}% "
+          f"({total_pruned:,}/{total_params:,} poids prunes)")
+    print(f"{'='*90}")
+    print(f"  {'Couche':<30} {'Type':<10} {'Taille':>10} "
+          f"{'Local%':>8} {'%modele':>8} {'%prune':>8}")
+    print(f"  {'-'*78}")
+
+    for name, info in layer_info.items():
+        if name == "__total__":
+            continue
+        short = shorten_name(name)
         cat = classify_layer(name)
-        if cat not in groups: groups[cat] = {"total": 0, "pruned": 0, "layers": 0}
-        groups[cat]["total"] += info["total"]
-        groups[cat]["pruned"] += info["pruned"]
-        groups[cat]["layers"] += 1
-    print(f"  {'Category':<25} {'Layers':>7} {'Params':>12} {'Sparsity':>10}")
-    print(f"  {'-'*55}")
-    for cat in ["Attention Q","Attention K","Attention V","Attention O","FFN up","FFN down","Output head","Other"]:
-        if cat in groups:
-            g = groups[cat]
-            sp = g["pruned"] / g["total"] * 100 if g["total"] > 0 else 0
-            print(f"  {cat:<25} {g['layers']:>7} {g['total']:>12,} {sp:>8.1f}%")
+        shape_str = f"{info['shape'][0]}x{info['shape'][1]}"
+        local_sp = info['sparsity_local'] * 100
+        pct_model = info['pct_of_total_model']
+        pct_pruned = info['pct_of_total_pruned']
 
-    print(f"\n{'='*80}")
-    print(f"  GROUPED BY TRANSFORMER LAYER — {label}")
-    print(f"{'='*80}")
-    lg = {}
-    for name, info in layer_sparsities.items():
-        idx = get_transformer_layer_idx(name)
-        if idx < 0: continue
-        if idx not in lg: lg[idx] = {"total": 0, "pruned": 0}
-        lg[idx]["total"] += info["total"]; lg[idx]["pruned"] += info["pruned"]
-    print(f"  {'Layer':>7} {'Params':>12} {'Sparsity':>10}")
-    print(f"  {'-'*30}")
+        print(f"  {short:<30} {cat:<10} {shape_str:>10} "
+              f"{local_sp:>7.1f}% {pct_model:>7.2f}% {pct_pruned:>7.2f}%")
+
+    print(f"  {'-'*78}")
+    print(f"  {'TOTAL':<30} {'':10} {total_params:>10,} "
+          f"{global_sparsity:>7.2f}% {global_sparsity:>7.2f}% {'100.00':>7}%")
+
+    # ===== TABLE 2: By layer type =====
+    print(f"\n{'='*70}")
+    print(f"  PAR TYPE DE COUCHE")
+    print(f"{'='*70}")
+    print(f"  {'Type':<20} {'Nb':>4} {'Params':>12} {'Prunes':>12} "
+          f"{'Local%':>8} {'%modele':>8}")
+    print(f"  {'-'*66}")
+
+    type_stats = OrderedDict()
+    for name, info in layer_info.items():
+        if name == "__total__":
+            continue
+        cat = classify_layer(name)
+        if cat not in type_stats:
+            type_stats[cat] = {"params": 0, "pruned": 0, "count": 0}
+        type_stats[cat]["params"] += info["total"]
+        type_stats[cat]["pruned"] += info["pruned"]
+        type_stats[cat]["count"] += 1
+
+    for cat in ["Attn Q", "Attn K", "Attn V", "Attn Out",
+                "FFN up", "FFN down", "Other"]:
+        if cat not in type_stats:
+            continue
+        ts = type_stats[cat]
+        local_sp = ts["pruned"] / ts["params"] * 100 if ts["params"] > 0 else 0
+        pct_model = ts["pruned"] / total_params * 100 if total_params > 0 else 0
+        print(f"  {cat:<20} {ts['count']:>4} {ts['params']:>12,} "
+              f"{ts['pruned']:>12,} {local_sp:>7.1f}% {pct_model:>7.2f}%")
+
+    # Subtotals
+    attn_p = sum(ts["params"] for c, ts in type_stats.items() if "Attn" in c)
+    attn_z = sum(ts["pruned"] for c, ts in type_stats.items() if "Attn" in c)
+    ffn_p = sum(ts["params"] for c, ts in type_stats.items() if "FFN" in c)
+    ffn_z = sum(ts["pruned"] for c, ts in type_stats.items() if "FFN" in c)
+    print(f"  {'-'*66}")
+    print(f"  {'Attention total':<20} {'':>4} {attn_p:>12,} {attn_z:>12,} "
+          f"{attn_z/attn_p*100 if attn_p else 0:>7.1f}% "
+          f"{attn_z/total_params*100 if total_params else 0:>7.2f}%")
+    print(f"  {'FFN total':<20} {'':>4} {ffn_p:>12,} {ffn_z:>12,} "
+          f"{ffn_z/ffn_p*100 if ffn_p else 0:>7.1f}% "
+          f"{ffn_z/total_params*100 if total_params else 0:>7.2f}%")
+
+    # ===== TABLE 3: By transformer layer =====
+    print(f"\n{'='*60}")
+    print(f"  PAR COUCHE TRANSFORMER (L0-L11)")
+    print(f"{'='*60}")
+    print(f"  {'Layer':>7} {'Params':>10} {'Prunes':>10} "
+          f"{'Local%':>8} {'%modele':>8}")
+    print(f"  {'-'*46}")
+
+    lg = OrderedDict()
+    for name, info in layer_info.items():
+        if name == "__total__":
+            continue
+        idx = get_layer_idx(name)
+        if idx < 0:
+            continue
+        if idx not in lg:
+            lg[idx] = {"params": 0, "pruned": 0}
+        lg[idx]["params"] += info["total"]
+        lg[idx]["pruned"] += info["pruned"]
+
     for idx in sorted(lg.keys()):
         g = lg[idx]
-        sp = g["pruned"] / g["total"] * 100 if g["total"] > 0 else 0
-        bar = "\u2588" * int(sp / 5) + "\u2591" * (20 - int(sp / 5))
-        print(f"  L{idx:>5} {g['total']:>12,} {sp:>8.1f}% {bar}")
+        local_sp = g["pruned"] / g["params"] * 100 if g["params"] > 0 else 0
+        pct_model = g["pruned"] / total_params * 100 if total_params > 0 else 0
+        bar = "#" * int(local_sp / 5) + "." * (20 - int(local_sp / 5))
+        print(f"  L{idx:>5} {g['params']:>10,} {g['pruned']:>10,} "
+              f"{local_sp:>7.1f}% {pct_model:>7.2f}% {bar}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Global pruning + per-layer analysis")
-    finetune_opts(parser); tokenizer_opts(parser); adv_opts(parser)
+    parser = argparse.ArgumentParser()
+    finetune_opts(parser)
+    tokenizer_opts(parser)
+    adv_opts(parser)
     parser.add_argument("--soft_targets", action="store_true", default=False)
     parser.add_argument("--soft_alpha", type=float, default=0.5)
     parser.add_argument("--labels_num", type=int, default=2)
-    parser.add_argument("--metric", type=str, default="wanda",
+    parser.add_argument("--metric", default="pruner_zero",
                         choices=["magnitude", "wanda", "pruner_zero"])
     parser.add_argument("--sparsity", type=float, default=0.5)
     parser.add_argument("--n_calib", type=int, default=128)
@@ -186,63 +278,66 @@ def main():
     trainset = read_dataset(args, args.train_path)
     devset = read_dataset(args, args.dev_path)
     testset = read_dataset(args, args.test_path) if args.test_path else None
-    print(f"Train: {len(trainset)}, Dev: {len(devset)}")
+    print(f"\nTrain: {len(trainset)}, Dev: {len(devset)}, "
+          f"Test: {len(testset) if testset else 0}")
 
-    calib_loader = make_calibration_loader(trainset, args.n_calib, args.batch_size, seed=args.seed)
+    # 1) Dense evaluation
+    print("\n[1/3] Modele DENSE...")
+    model.eval()
+    dense_acc = evaluate(args, devset)
+    if testset:
+        dense_test = evaluate(args, testset)
 
-    # === PER-ROW ===
-    print(f"\n{'#'*80}\n  MODE 1: PER-ROW PRUNING\n{'#'*80}")
-    model_pr = copy.deepcopy(model)
-    pruner_pr = NetGPTPruner(model_pr, metric=args.metric, sparsity=args.sparsity,
-                             prune_output_layers=args.prune_output)
-    pruner_pr.calibrate(calib_loader, args.device, args)
-    pruner_pr.prune()
-    pr_stats = pruner_pr.get_stats()
-    pr_sp = {n: {"shape": i["shape"], "total": i["total_params"],
-                 "pruned": i["zero_params"], "sparsity": i["sparsity"]}
-             for n, i in pr_stats.items() if n != "__global__"}
-    print_analysis(pr_sp, f"per-row {args.metric} {args.sparsity*100:.0f}%")
-    pr_res = evaluate_with_metrics(args, devset)
-    print(f"\n  Per-row Accuracy: {pr_res['accuracy']:.4f}, F1: {pr_res['f1_macro']:.4f}")
-    del model_pr; torch.cuda.empty_cache()
-
-    # === GLOBAL ===
-    print(f"\n{'#'*80}\n  MODE 2: GLOBAL PRUNING\n{'#'*80}")
+    # 2) Global pruning
+    print(f"\n[2/3] GLOBAL pruning: {args.metric}, {args.sparsity*100:.0f}%")
+    calib_loader = make_calibration_loader(
+        trainset, args.n_calib, args.batch_size, seed=args.seed)
     model_gl = copy.deepcopy(model)
-    pruner_gl = NetGPTPruner(model_gl, metric=args.metric, sparsity=args.sparsity,
-                             prune_output_layers=args.prune_output)
-    pruner_gl.calibrate(calib_loader, args.device, args)
-    gl_sp = prune_global(pruner_gl)
-    print_analysis(gl_sp, f"global {args.metric} {args.sparsity*100:.0f}%")
+    pruner = NetGPTPruner(model_gl, metric=args.metric,
+                          sparsity=args.sparsity,
+                          prune_output_layers=args.prune_output)
+    pruner.calibrate(calib_loader, args.device, args)
+    layer_info = prune_global(pruner)
+
+    # 3) Print results with global percentages
+    print_results(layer_info,
+                  f"Global {args.metric} @ {args.sparsity*100:.0f}%")
+
+    # 4) Pruned evaluation
+    print(f"\n[3/3] Modele PRUNE...")
     args.model = model_gl
-    gl_res = evaluate_with_metrics(args, devset)
-    print(f"\n  Global Accuracy: {gl_res['accuracy']:.4f}, F1: {gl_res['f1_macro']:.4f}")
+    pruned_acc = evaluate(args, devset)
+    if testset:
+        pruned_test = evaluate(args, testset)
 
-    print(f"\n{'='*80}\n  COMPARISON\n{'='*80}")
-    print(f"  {'Mode':<15} {'Accuracy':>10} {'F1-macro':>10}")
-    print(f"  {'-'*35}")
-    print(f"  {'Dense':<15} {'1.0000':>10} {'1.0000':>10}")
-    print(f"  {'Per-row':<15} {pr_res['accuracy']:>10.4f} {pr_res['f1_macro']:>10.4f}")
-    print(f"  {'Global':<15} {gl_res['accuracy']:>10.4f} {gl_res['f1_macro']:>10.4f}")
+    # Summary
+    print(f"\n{'='*50}")
+    print(f"  DENSE  : dev={dense_acc:.4f}" +
+          (f"  test={dense_test:.4f}" if testset else ""))
+    print(f"  PRUNED : dev={pruned_acc:.4f}" +
+          (f"  test={pruned_test:.4f}" if testset else ""))
+    retention = pruned_acc / dense_acc * 100 if dense_acc > 0 else 0
+    print(f"  Retention: {retention:.1f}%")
+    print(f"{'='*50}")
 
-    csv_path = os.path.join(args.output_dir, "layer_sparsity.csv")
+    # CSV
+    csv_path = os.path.join(args.output_dir, "global_pruning_results.csv")
     with open(csv_path, "w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["layer_name","transformer_idx","category","shape","total_params","perrow_sparsity","global_sparsity"])
-        all_names = sorted(set(list(pr_sp.keys()) + list(gl_sp.keys())))
-        for name in all_names:
-            pr = pr_sp.get(name, {}); gl = gl_sp.get(name, {})
-            shape = pr.get("shape", gl.get("shape", (0,0)))
-            w.writerow([name, get_transformer_layer_idx(name), classify_layer(name),
-                        f"{shape[0]}x{shape[1]}", pr.get("total", gl.get("total",0)),
-                        f"{pr.get('sparsity',0):.4f}", f"{gl.get('sparsity',0):.4f}"])
+        w.writerow(["layer", "type", "shape", "params", "pruned",
+                     "local_sparsity", "pct_of_model", "pct_of_total_pruned"])
+        for name, info in layer_info.items():
+            if name == "__total__":
+                continue
+            w.writerow([
+                shorten_name(name), classify_layer(name),
+                f"{info['shape'][0]}x{info['shape'][1]}",
+                info["total"], info["pruned"],
+                f"{info['sparsity_local']:.4f}",
+                f"{info['pct_of_total_model']:.4f}",
+                f"{info['pct_of_total_pruned']:.4f}",
+            ])
     print(f"\nCSV: {csv_path}")
-
-    if testset:
-        args.model = model_gl
-        t_res = evaluate_with_metrics(args, testset)
-        print(f"  Global Test Acc: {t_res['accuracy']:.4f}, F1: {t_res['f1_macro']:.4f}")
-    print("Done.")
 
 
 if __name__ == "__main__":

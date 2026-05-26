@@ -85,7 +85,7 @@ def count_labels_num(path):
 def load_or_initialize_parameters(args, model):
     if args.pretrained_model_path is not None:
         # Initialize with pretrained model.
-        model.load_state_dict(torch.load(args.pretrained_model_path, map_location="cpu"), strict=False)
+        ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
     else:
         # Initialize with normal distribution.
         for n, p in list(model.named_parameters()):

@@ -1,0 +1,288 @@
+========== GLOBAL pruner_zero @ 0.72 ==========
+/home/romain/projects/NetGPT_work/finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 17:16:22,840 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:16:23,491 INFO] Acc. (Correct/Total): 0.9806 (706/720) 
+[2026-05-19 17:16:24,508 INFO] Acc. (Correct/Total): 0.9764 (703/720) 
+[2026-05-19 17:16:24,985 INFO] Acc. (Correct/Total): 0.9764 (703/720) 
+  [Shape-aware load] 24/24 params loaded, 0 random-init
+
+Train: 5760, Dev: 720, Test: 720
+
+[1/3] Modele DENSE...
+
+[2/3] GLOBAL pruning: pruner_zero, 72%
+[Pruner] Found 6 prunable linear layers
+  encoder.transformer.0.self_attn.linear_layers.0: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.1: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.2: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.final_linear: torch.Size([768, 768])
+  encoder.transformer.0.feed_forward.linear_1: torch.Size([256, 768])
+  encoder.transformer.0.feed_forward.linear_2: torch.Size([768, 256])
+[Pruner] Calibrating with metric='pruner_zero', sparsity=0.72
+[Pruner] Gradients collected over 4 batches
+[Pruner] Calibration complete
+
+==========================================================================================
+  PRUNING GLOBAL — Global pruner_zero @ 72%
+  Sparsity globale: 72.00% (1,981,808/2,752,512 poids prunes)
+==========================================================================================
+  Couche                         Type           Taille   Local%  %modele   %prune
+  ------------------------------------------------------------------------------
+  L0.attn.0                      Attn Q        768x768    70.8%   15.17%   21.07%
+  L0.attn.1                      Attn K        768x768    68.4%   14.66%   20.36%
+  L0.attn.2                      Attn V        768x768    79.7%   17.08%   23.72%
+  L0.attn.out                    Attn Out      768x768    80.8%   17.32%   24.06%
+  L0.ffn.up                      FFN up        256x768    67.7%    4.84%    6.72%
+  L0.ffn.down                    FFN down      768x256    41.1%    2.94%    4.08%
+  ------------------------------------------------------------------------------
+  TOTAL                                      2,752,512   72.00%   72.00%  100.00%
+
+======================================================================
+  PAR TYPE DE COUCHE
+======================================================================
+  Type                   Nb       Params       Prunes   Local%  %modele
+  ------------------------------------------------------------------
+  Attn Q                  1      589,824      417,654    70.8%   15.17%
+  Attn K                  1      589,824      403,417    68.4%   14.66%
+  Attn V                  1      589,824      469,994    79.7%   17.08%
+  Attn Out                1      589,824      476,793    80.8%   17.32%
+  FFN up                  1      196,608      133,156    67.7%    4.84%
+  FFN down                1      196,608       80,794    41.1%    2.94%
+  ------------------------------------------------------------------
+  Attention total              2,359,296    1,767,858    74.9%   64.23%
+  FFN total                      393,216      213,950    54.4%    7.77%
+
+============================================================
+  PAR COUCHE TRANSFORMER (L0-L11)
+============================================================
+    Layer     Params     Prunes   Local%  %modele
+  ----------------------------------------------
+  L    0  2,752,512  1,981,808    72.0%   72.00% ##############......
+
+[3/3] Modele PRUNE...
+
+==================================================
+Traceback (most recent call last):
+  File "pruning/run_pruning_global.py", line 344, in <module>
+    main()
+  File "pruning/run_pruning_global.py", line 315, in main
+    print(f"  DENSE  : dev={dense_acc:.4f}" +
+TypeError: unsupported format string passed to tuple.__format__
+
+========== GLOBAL pruner_zero @ 0.74 ==========
+/home/romain/projects/NetGPT_work/finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 17:16:52,957 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:16:53,589 INFO] Acc. (Correct/Total): 0.9806 (706/720) 
+[2026-05-19 17:16:54,457 INFO] Acc. (Correct/Total): 0.9736 (701/720) 
+[2026-05-19 17:16:54,930 INFO] Acc. (Correct/Total): 0.9764 (703/720) 
+  [Shape-aware load] 24/24 params loaded, 0 random-init
+
+Train: 5760, Dev: 720, Test: 720
+
+[1/3] Modele DENSE...
+
+[2/3] GLOBAL pruning: pruner_zero, 74%
+[Pruner] Found 6 prunable linear layers
+  encoder.transformer.0.self_attn.linear_layers.0: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.1: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.2: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.final_linear: torch.Size([768, 768])
+  encoder.transformer.0.feed_forward.linear_1: torch.Size([256, 768])
+  encoder.transformer.0.feed_forward.linear_2: torch.Size([768, 256])
+[Pruner] Calibrating with metric='pruner_zero', sparsity=0.74
+[Pruner] Gradients collected over 4 batches
+[Pruner] Calibration complete
+
+==========================================================================================
+  PRUNING GLOBAL — Global pruner_zero @ 74%
+  Sparsity globale: 74.00% (2,036,858/2,752,512 poids prunes)
+==========================================================================================
+  Couche                         Type           Taille   Local%  %modele   %prune
+  ------------------------------------------------------------------------------
+  L0.attn.0                      Attn Q        768x768    72.8%   15.61%   21.09%
+  L0.attn.1                      Attn K        768x768    70.4%   15.09%   20.40%
+  L0.attn.2                      Attn V        768x768    81.6%   17.48%   23.62%
+  L0.attn.out                    Attn Out      768x768    82.6%   17.71%   23.93%
+  L0.ffn.up                      FFN up        256x768    70.6%    5.04%    6.82%
+  L0.ffn.down                    FFN down      768x256    42.9%    3.06%    4.14%
+  ------------------------------------------------------------------------------
+  TOTAL                                      2,752,512   74.00%   74.00%  100.00%
+
+======================================================================
+  PAR TYPE DE COUCHE
+======================================================================
+  Type                   Nb       Params       Prunes   Local%  %modele
+  ------------------------------------------------------------------
+  Attn Q                  1      589,824      429,569    72.8%   15.61%
+  Attn K                  1      589,824      415,444    70.4%   15.09%
+  Attn V                  1      589,824      481,197    81.6%   17.48%
+  Attn Out                1      589,824      487,444    82.6%   17.71%
+  FFN up                  1      196,608      138,849    70.6%    5.04%
+  FFN down                1      196,608       84,355    42.9%    3.06%
+  ------------------------------------------------------------------
+  Attention total              2,359,296    1,813,654    76.9%   65.89%
+  FFN total                      393,216      223,204    56.8%    8.11%
+
+============================================================
+  PAR COUCHE TRANSFORMER (L0-L11)
+============================================================
+    Layer     Params     Prunes   Local%  %modele
+  ----------------------------------------------
+  L    0  2,752,512  2,036,858    74.0%   74.00% ##############......
+
+[3/3] Modele PRUNE...
+
+==================================================
+Traceback (most recent call last):
+  File "pruning/run_pruning_global.py", line 344, in <module>
+    main()
+  File "pruning/run_pruning_global.py", line 315, in main
+    print(f"  DENSE  : dev={dense_acc:.4f}" +
+TypeError: unsupported format string passed to tuple.__format__
+
+========== GLOBAL pruner_zero @ 0.76 ==========
+/home/romain/projects/NetGPT_work/finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 17:17:22,823 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:17:23,521 INFO] Acc. (Correct/Total): 0.9806 (706/720) 
+[2026-05-19 17:17:24,512 INFO] Acc. (Correct/Total): 0.9653 (695/720) 
+[2026-05-19 17:17:25,026 INFO] Acc. (Correct/Total): 0.9625 (693/720) 
+  [Shape-aware load] 24/24 params loaded, 0 random-init
+
+Train: 5760, Dev: 720, Test: 720
+
+[1/3] Modele DENSE...
+
+[2/3] GLOBAL pruning: pruner_zero, 76%
+[Pruner] Found 6 prunable linear layers
+  encoder.transformer.0.self_attn.linear_layers.0: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.1: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.2: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.final_linear: torch.Size([768, 768])
+  encoder.transformer.0.feed_forward.linear_1: torch.Size([256, 768])
+  encoder.transformer.0.feed_forward.linear_2: torch.Size([768, 256])
+[Pruner] Calibrating with metric='pruner_zero', sparsity=0.76
+[Pruner] Gradients collected over 4 batches
+[Pruner] Calibration complete
+
+==========================================================================================
+  PRUNING GLOBAL — Global pruner_zero @ 76%
+  Sparsity globale: 76.00% (2,091,909/2,752,512 poids prunes)
+==========================================================================================
+  Couche                         Type           Taille   Local%  %modele   %prune
+  ------------------------------------------------------------------------------
+  L0.attn.0                      Attn Q        768x768    74.8%   16.03%   21.10%
+  L0.attn.1                      Attn K        768x768    72.5%   15.53%   20.44%
+  L0.attn.2                      Attn V        768x768    83.4%   17.87%   23.52%
+  L0.attn.out                    Attn Out      768x768    84.4%   18.09%   23.80%
+  L0.ffn.up                      FFN up        256x768    73.8%    5.27%    6.93%
+  L0.ffn.down                    FFN down      768x256    44.8%    3.20%    4.21%
+  ------------------------------------------------------------------------------
+  TOTAL                                      2,752,512   76.00%   76.00%  100.00%
+
+======================================================================
+  PAR TYPE DE COUCHE
+======================================================================
+  Type                   Nb       Params       Prunes   Local%  %modele
+  ------------------------------------------------------------------
+  Attn Q                  1      589,824      441,340    74.8%   16.03%
+  Attn K                  1      589,824      427,570    72.5%   15.53%
+  Attn V                  1      589,824      491,994    83.4%   17.87%
+  Attn Out                1      589,824      497,955    84.4%   18.09%
+  FFN up                  1      196,608      145,018    73.8%    5.27%
+  FFN down                1      196,608       88,032    44.8%    3.20%
+  ------------------------------------------------------------------
+  Attention total              2,359,296    1,858,859    78.8%   67.53%
+  FFN total                      393,216      233,050    59.3%    8.47%
+
+============================================================
+  PAR COUCHE TRANSFORMER (L0-L11)
+============================================================
+    Layer     Params     Prunes   Local%  %modele
+  ----------------------------------------------
+  L    0  2,752,512  2,091,909    76.0%   76.00% ###############.....
+
+[3/3] Modele PRUNE...
+
+==================================================
+Traceback (most recent call last):
+  File "pruning/run_pruning_global.py", line 344, in <module>
+    main()
+  File "pruning/run_pruning_global.py", line 315, in main
+    print(f"  DENSE  : dev={dense_acc:.4f}" +
+TypeError: unsupported format string passed to tuple.__format__
+
+========== GLOBAL pruner_zero @ 0.78 ==========
+/home/romain/projects/NetGPT_work/finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 17:17:53,075 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:17:53,619 INFO] Acc. (Correct/Total): 0.9806 (706/720) 
+[2026-05-19 17:17:54,409 INFO] Acc. (Correct/Total): 0.9389 (676/720) 
+[2026-05-19 17:17:54,862 INFO] Acc. (Correct/Total): 0.9319 (671/720) 
+  [Shape-aware load] 24/24 params loaded, 0 random-init
+
+Train: 5760, Dev: 720, Test: 720
+
+[1/3] Modele DENSE...
+
+[2/3] GLOBAL pruning: pruner_zero, 78%
+[Pruner] Found 6 prunable linear layers
+  encoder.transformer.0.self_attn.linear_layers.0: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.1: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.2: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.final_linear: torch.Size([768, 768])
+  encoder.transformer.0.feed_forward.linear_1: torch.Size([256, 768])
+  encoder.transformer.0.feed_forward.linear_2: torch.Size([768, 256])
+[Pruner] Calibrating with metric='pruner_zero', sparsity=0.78
+[Pruner] Gradients collected over 4 batches
+[Pruner] Calibration complete
+
+==========================================================================================
+  PRUNING GLOBAL — Global pruner_zero @ 78%
+  Sparsity globale: 78.00% (2,146,959/2,752,512 poids prunes)
+==========================================================================================
+  Couche                         Type           Taille   Local%  %modele   %prune
+  ------------------------------------------------------------------------------
+  L0.attn.0                      Attn Q        768x768    76.8%   16.46%   21.10%
+  L0.attn.1                      Attn K        768x768    74.5%   15.97%   20.48%
+  L0.attn.2                      Attn V        768x768    85.2%   18.25%   23.40%
+  L0.attn.out                    Attn Out      768x768    86.2%   18.47%   23.68%
+  L0.ffn.up                      FFN up        256x768    77.1%    5.51%    7.06%
+  L0.ffn.down                    FFN down      768x256    46.7%    3.34%    4.28%
+  ------------------------------------------------------------------------------
+  TOTAL                                      2,752,512   78.00%   78.00%  100.00%
+
+======================================================================
+  PAR TYPE DE COUCHE
+======================================================================
+  Type                   Nb       Params       Prunes   Local%  %modele
+  ------------------------------------------------------------------
+  Attn Q                  1      589,824      453,104    76.8%   16.46%
+  Attn K                  1      589,824      439,618    74.5%   15.97%
+  Attn V                  1      589,824      502,448    85.2%   18.25%
+  Attn Out                1      589,824      508,353    86.2%   18.47%
+  FFN up                  1      196,608      151,546    77.1%    5.51%
+  FFN down                1      196,608       91,890    46.7%    3.34%
+  ------------------------------------------------------------------
+  Attention total              2,359,296    1,903,523    80.7%   69.16%
+  FFN total                      393,216      243,436    61.9%    8.84%
+
+============================================================
+  PAR COUCHE TRANSFORMER (L0-L11)
+============================================================
+    Layer     Params     Prunes   Local%  %modele
+  ----------------------------------------------
+  L    0  2,752,512  2,146,959    78.0%   78.00% ###############.....
+
+[3/3] Modele PRUNE...
+
+==================================================
+Traceback (most recent call last):
+  File "pruning/run_pruning_global.py", line 344, in <module>
+    main()
+  File "pruning/run_pruning_global.py", line 315, in main
+    print(f"  DENSE  : dev={dense_acc:.4f}" +
+TypeError: unsupported format string passed to tuple.__format__
+

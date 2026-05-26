@@ -1,0 +1,646 @@
+========== magnitude @ 0.5 ==========
+/home/romain/projects/NetGPT_work/finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 17:00:12,470 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:00:12,773 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:00:13,059 INFO] Acc. (Correct/Total): 0.9806 (706/720) 
+
+============================================================
+ NetGPT Post-Training Pruning
+  Metric:     magnitude
+  Sparsity:   50%
+  N_calib:    128
+  Seed:       42
+  Seq_length: 64
+  Labels:     4
+============================================================
+
+  [Shape-aware load] 24/24 params loaded, 0 random-init
+Train: 5760, Dev: 720, Test: 720
+
+[1/4] Evaluating DENSE model...
+  Accuracy:  0.9792
+  F1-macro:  0.9792
+  Inference: 0.11 ms/sample
+  Params:    54,476,804
+
+[2/4] Calibrating (128 samples)...
+[Calib] Sampled 128 flows, 4 batches (batch_size=32)
+
+[3/4] Pruning: metric=magnitude, sparsity=50%
+[Pruner] Found 6 prunable linear layers
+  encoder.transformer.0.self_attn.linear_layers.0: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.1: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.2: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.final_linear: torch.Size([768, 768])
+  encoder.transformer.0.feed_forward.linear_1: torch.Size([256, 768])
+  encoder.transformer.0.feed_forward.linear_2: torch.Size([768, 256])
+[Pruner] Calibrating with metric='magnitude', sparsity=0.5
+[Pruner] Calibration complete
+[Pruner] Pruning 6 layers at 50% sparsity (per-row)...
+[Pruner] Done. Effective sparsity: 50.00% (1,376,256/2,752,512 weights zeroed)
+
+======================================================================
+Layer                                                Shape   Sparsity
+----------------------------------------------------------------------
+  encoder.transformer.0.self_attn.linear_layers.0      768x768     50.0%
+  encoder.transformer.0.self_attn.linear_layers.1      768x768     50.0%
+  encoder.transformer.0.self_attn.linear_layers.2      768x768     50.0%
+  encoder.transformer.0.self_attn.final_linear      768x768     50.0%
+  encoder.transformer.0.feed_forward.linear_1      256x768     50.0%
+  encoder.transformer.0.feed_forward.linear_2      768x256     50.0%
+----------------------------------------------------------------------
+  GLOBAL                                         2,752,512    50.00%
+  Metric: magnitude, Target: 50%
+======================================================================
+
+[4/4] Evaluating PRUNED model...
+  Accuracy:  0.9792
+  F1-macro:  0.9792
+  Inference: 0.11 ms/sample
+  Density:   97.47%
+
+============================================================
+  RETENTION: 100.0%
+  F1 DELTA:  +0.0000
+============================================================
+
+Evaluating on TEST set...
+  Test Accuracy: 0.9806
+  Test F1-macro: 0.9807
+
+========== wanda @ 0.5 ==========
+/home/romain/projects/NetGPT_work/finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 17:00:41,453 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:00:41,770 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:00:42,070 INFO] Acc. (Correct/Total): 0.9806 (706/720) 
+
+============================================================
+ NetGPT Post-Training Pruning
+  Metric:     wanda
+  Sparsity:   50%
+  N_calib:    128
+  Seed:       42
+  Seq_length: 64
+  Labels:     4
+============================================================
+
+  [Shape-aware load] 24/24 params loaded, 0 random-init
+Train: 5760, Dev: 720, Test: 720
+
+[1/4] Evaluating DENSE model...
+  Accuracy:  0.9792
+  F1-macro:  0.9792
+  Inference: 0.10 ms/sample
+  Params:    54,476,804
+
+[2/4] Calibrating (128 samples)...
+[Calib] Sampled 128 flows, 4 batches (batch_size=32)
+
+[3/4] Pruning: metric=wanda, sparsity=50%
+[Pruner] Found 6 prunable linear layers
+  encoder.transformer.0.self_attn.linear_layers.0: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.1: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.2: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.final_linear: torch.Size([768, 768])
+  encoder.transformer.0.feed_forward.linear_1: torch.Size([256, 768])
+  encoder.transformer.0.feed_forward.linear_2: torch.Size([768, 256])
+[Pruner] Calibrating with metric='wanda', sparsity=0.5
+[Pruner] Activation norms collected for 6 layers
+[Pruner] Calibration complete
+[Pruner] Pruning 6 layers at 50% sparsity (per-row)...
+[Pruner] Done. Effective sparsity: 50.00% (1,376,256/2,752,512 weights zeroed)
+
+======================================================================
+Layer                                                Shape   Sparsity
+----------------------------------------------------------------------
+  encoder.transformer.0.self_attn.linear_layers.0      768x768     50.0%
+  encoder.transformer.0.self_attn.linear_layers.1      768x768     50.0%
+  encoder.transformer.0.self_attn.linear_layers.2      768x768     50.0%
+  encoder.transformer.0.self_attn.final_linear      768x768     50.0%
+  encoder.transformer.0.feed_forward.linear_1      256x768     50.0%
+  encoder.transformer.0.feed_forward.linear_2      768x256     50.0%
+----------------------------------------------------------------------
+  GLOBAL                                         2,752,512    50.00%
+  Metric: wanda, Target: 50%
+======================================================================
+
+[4/4] Evaluating PRUNED model...
+  Accuracy:  0.9792
+  F1-macro:  0.9792
+  Inference: 0.11 ms/sample
+  Density:   97.47%
+
+============================================================
+  RETENTION: 100.0%
+  F1 DELTA:  +0.0000
+============================================================
+
+Evaluating on TEST set...
+  Test Accuracy: 0.9806
+  Test F1-macro: 0.9807
+
+========== pruner_zero @ 0.5 ==========
+/home/romain/projects/NetGPT_work/finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 17:01:10,731 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:01:11,088 INFO] Acc. (Correct/Total): 0.9778 (704/720) 
+[2026-05-19 17:01:11,385 INFO] Acc. (Correct/Total): 0.9806 (706/720) 
+
+============================================================
+ NetGPT Post-Training Pruning
+  Metric:     pruner_zero
+  Sparsity:   50%
+  N_calib:    128
+  Seed:       42
+  Seq_length: 64
+  Labels:     4
+============================================================
+
+  [Shape-aware load] 24/24 params loaded, 0 random-init
+Train: 5760, Dev: 720, Test: 720
+
+[1/4] Evaluating DENSE model...
+  Accuracy:  0.9792
+  F1-macro:  0.9792
+  Inference: 0.11 ms/sample
+  Params:    54,476,804
+
+[2/4] Calibrating (128 samples)...
+[Calib] Sampled 128 flows, 4 batches (batch_size=32)
+
+[3/4] Pruning: metric=pruner_zero, sparsity=50%
+[Pruner] Found 6 prunable linear layers
+  encoder.transformer.0.self_attn.linear_layers.0: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.1: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.2: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.final_linear: torch.Size([768, 768])
+  encoder.transformer.0.feed_forward.linear_1: torch.Size([256, 768])
+  encoder.transformer.0.feed_forward.linear_2: torch.Size([768, 256])
+[Pruner] Calibrating with metric='pruner_zero', sparsity=0.5
+[Pruner] Gradients collected over 4 batches
+[Pruner] Calibration complete
+[Pruner] Pruning 6 layers at 50% sparsity (per-row)...
+[Pruner] Done. Effective sparsity: 50.00% (1,376,256/2,752,512 weights zeroed)
+
+======================================================================
+Layer                                                Shape   Sparsity
+----------------------------------------------------------------------
+  encoder.transformer.0.self_attn.linear_layers.0      768x768     50.0%
+  encoder.transformer.0.self_attn.linear_layers.1      768x768     50.0%
+  encoder.transformer.0.self_attn.linear_layers.2      768x768     50.0%
+  encoder.transformer.0.self_attn.final_linear      768x768     50.0%
+  encoder.transformer.0.feed_forward.linear_1      256x768     50.0%
+  encoder.transformer.0.feed_forward.linear_2      768x256     50.0%
+----------------------------------------------------------------------
+  GLOBAL                                         2,752,512    50.00%
+  Metric: pruner_zero, Target: 50%
+======================================================================
+
+[4/4] Evaluating PRUNED model...
+  Accuracy:  0.9778
+  F1-macro:  0.9778
+  Inference: 0.11 ms/sample
+  Density:   97.47%
+
+============================================================
+  RETENTION: 99.9%
+  F1 DELTA:  -0.0014
+============================================================
+
+Evaluating on TEST set...
+  Test Accuracy: 0.9806
+  Test F1-macro: 0.9807
+
+========== magnitude @ 0.6 ==========
+/home/romain/projects/NetGPT_work/finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 17:01:40,696 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:01:41,041 INFO] Acc. (Correct/Total): 0.9778 (704/720) 
+[2026-05-19 17:01:41,312 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+
+============================================================
+ NetGPT Post-Training Pruning
+  Metric:     magnitude
+  Sparsity:   60%
+  N_calib:    128
+  Seed:       42
+  Seq_length: 64
+  Labels:     4
+============================================================
+
+  [Shape-aware load] 24/24 params loaded, 0 random-init
+Train: 5760, Dev: 720, Test: 720
+
+[1/4] Evaluating DENSE model...
+  Accuracy:  0.9792
+  F1-macro:  0.9792
+  Inference: 0.14 ms/sample
+  Params:    54,476,804
+
+[2/4] Calibrating (128 samples)...
+[Calib] Sampled 128 flows, 4 batches (batch_size=32)
+
+[3/4] Pruning: metric=magnitude, sparsity=60%
+[Pruner] Found 6 prunable linear layers
+  encoder.transformer.0.self_attn.linear_layers.0: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.1: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.2: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.final_linear: torch.Size([768, 768])
+  encoder.transformer.0.feed_forward.linear_1: torch.Size([256, 768])
+  encoder.transformer.0.feed_forward.linear_2: torch.Size([768, 256])
+[Pruner] Calibrating with metric='magnitude', sparsity=0.6
+[Pruner] Calibration complete
+[Pruner] Pruning 6 layers at 60% sparsity (per-row)...
+[Pruner] Done. Effective sparsity: 59.89% (1,648,384/2,752,512 weights zeroed)
+
+======================================================================
+Layer                                                Shape   Sparsity
+----------------------------------------------------------------------
+  encoder.transformer.0.self_attn.linear_layers.0      768x768     59.9%
+  encoder.transformer.0.self_attn.linear_layers.1      768x768     59.9%
+  encoder.transformer.0.self_attn.linear_layers.2      768x768     59.9%
+  encoder.transformer.0.self_attn.final_linear      768x768     59.9%
+  encoder.transformer.0.feed_forward.linear_1      256x768     59.9%
+  encoder.transformer.0.feed_forward.linear_2      768x256     59.8%
+----------------------------------------------------------------------
+  GLOBAL                                         2,752,512    59.89%
+  Metric: magnitude, Target: 60%
+======================================================================
+
+[4/4] Evaluating PRUNED model...
+  Accuracy:  0.9778
+  F1-macro:  0.9778
+  Inference: 0.10 ms/sample
+  Density:   96.97%
+
+============================================================
+  RETENTION: 99.9%
+  F1 DELTA:  -0.0014
+============================================================
+
+Evaluating on TEST set...
+  Test Accuracy: 0.9792
+  Test F1-macro: 0.9793
+
+========== wanda @ 0.6 ==========
+/home/romain/projects/NetGPT_work/finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 17:02:08,714 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:02:09,056 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:02:09,342 INFO] Acc. (Correct/Total): 0.9806 (706/720) 
+
+============================================================
+ NetGPT Post-Training Pruning
+  Metric:     wanda
+  Sparsity:   60%
+  N_calib:    128
+  Seed:       42
+  Seq_length: 64
+  Labels:     4
+============================================================
+
+  [Shape-aware load] 24/24 params loaded, 0 random-init
+Train: 5760, Dev: 720, Test: 720
+
+[1/4] Evaluating DENSE model...
+  Accuracy:  0.9792
+  F1-macro:  0.9792
+  Inference: 0.12 ms/sample
+  Params:    54,476,804
+
+[2/4] Calibrating (128 samples)...
+[Calib] Sampled 128 flows, 4 batches (batch_size=32)
+
+[3/4] Pruning: metric=wanda, sparsity=60%
+[Pruner] Found 6 prunable linear layers
+  encoder.transformer.0.self_attn.linear_layers.0: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.1: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.2: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.final_linear: torch.Size([768, 768])
+  encoder.transformer.0.feed_forward.linear_1: torch.Size([256, 768])
+  encoder.transformer.0.feed_forward.linear_2: torch.Size([768, 256])
+[Pruner] Calibrating with metric='wanda', sparsity=0.6
+[Pruner] Activation norms collected for 6 layers
+[Pruner] Calibration complete
+[Pruner] Pruning 6 layers at 60% sparsity (per-row)...
+[Pruner] Done. Effective sparsity: 59.89% (1,648,384/2,752,512 weights zeroed)
+
+======================================================================
+Layer                                                Shape   Sparsity
+----------------------------------------------------------------------
+  encoder.transformer.0.self_attn.linear_layers.0      768x768     59.9%
+  encoder.transformer.0.self_attn.linear_layers.1      768x768     59.9%
+  encoder.transformer.0.self_attn.linear_layers.2      768x768     59.9%
+  encoder.transformer.0.self_attn.final_linear      768x768     59.9%
+  encoder.transformer.0.feed_forward.linear_1      256x768     59.9%
+  encoder.transformer.0.feed_forward.linear_2      768x256     59.8%
+----------------------------------------------------------------------
+  GLOBAL                                         2,752,512    59.89%
+  Metric: wanda, Target: 60%
+======================================================================
+
+[4/4] Evaluating PRUNED model...
+  Accuracy:  0.9792
+  F1-macro:  0.9792
+  Inference: 0.11 ms/sample
+  Density:   96.97%
+
+============================================================
+  RETENTION: 100.0%
+  F1 DELTA:  +0.0000
+============================================================
+
+Evaluating on TEST set...
+  Test Accuracy: 0.9806
+  Test F1-macro: 0.9807
+
+========== pruner_zero @ 0.6 ==========
+/home/romain/projects/NetGPT_work/finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 17:02:38,471 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:02:38,938 INFO] Acc. (Correct/Total): 0.9778 (704/720) 
+[2026-05-19 17:02:39,297 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+
+============================================================
+ NetGPT Post-Training Pruning
+  Metric:     pruner_zero
+  Sparsity:   60%
+  N_calib:    128
+  Seed:       42
+  Seq_length: 64
+  Labels:     4
+============================================================
+
+  [Shape-aware load] 24/24 params loaded, 0 random-init
+Train: 5760, Dev: 720, Test: 720
+
+[1/4] Evaluating DENSE model...
+  Accuracy:  0.9792
+  F1-macro:  0.9792
+  Inference: 0.12 ms/sample
+  Params:    54,476,804
+
+[2/4] Calibrating (128 samples)...
+[Calib] Sampled 128 flows, 4 batches (batch_size=32)
+
+[3/4] Pruning: metric=pruner_zero, sparsity=60%
+[Pruner] Found 6 prunable linear layers
+  encoder.transformer.0.self_attn.linear_layers.0: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.1: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.2: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.final_linear: torch.Size([768, 768])
+  encoder.transformer.0.feed_forward.linear_1: torch.Size([256, 768])
+  encoder.transformer.0.feed_forward.linear_2: torch.Size([768, 256])
+[Pruner] Calibrating with metric='pruner_zero', sparsity=0.6
+[Pruner] Gradients collected over 4 batches
+[Pruner] Calibration complete
+[Pruner] Pruning 6 layers at 60% sparsity (per-row)...
+[Pruner] Done. Effective sparsity: 59.89% (1,648,384/2,752,512 weights zeroed)
+
+======================================================================
+Layer                                                Shape   Sparsity
+----------------------------------------------------------------------
+  encoder.transformer.0.self_attn.linear_layers.0      768x768     59.9%
+  encoder.transformer.0.self_attn.linear_layers.1      768x768     59.9%
+  encoder.transformer.0.self_attn.linear_layers.2      768x768     59.9%
+  encoder.transformer.0.self_attn.final_linear      768x768     59.9%
+  encoder.transformer.0.feed_forward.linear_1      256x768     59.9%
+  encoder.transformer.0.feed_forward.linear_2      768x256     59.8%
+----------------------------------------------------------------------
+  GLOBAL                                         2,752,512    59.89%
+  Metric: pruner_zero, Target: 60%
+======================================================================
+
+[4/4] Evaluating PRUNED model...
+  Accuracy:  0.9778
+  F1-macro:  0.9778
+  Inference: 0.14 ms/sample
+  Density:   96.97%
+
+============================================================
+  RETENTION: 99.9%
+  F1 DELTA:  -0.0014
+============================================================
+
+Evaluating on TEST set...
+  Test Accuracy: 0.9792
+  Test F1-macro: 0.9793
+
+========== magnitude @ 0.7 ==========
+/home/romain/projects/NetGPT_work/finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 17:03:10,039 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:03:10,327 INFO] Acc. (Correct/Total): 0.9736 (701/720) 
+[2026-05-19 17:03:10,616 INFO] Acc. (Correct/Total): 0.9764 (703/720) 
+
+============================================================
+ NetGPT Post-Training Pruning
+  Metric:     magnitude
+  Sparsity:   70%
+  N_calib:    128
+  Seed:       42
+  Seq_length: 64
+  Labels:     4
+============================================================
+
+  [Shape-aware load] 24/24 params loaded, 0 random-init
+Train: 5760, Dev: 720, Test: 720
+
+[1/4] Evaluating DENSE model...
+  Accuracy:  0.9792
+  F1-macro:  0.9792
+  Inference: 0.11 ms/sample
+  Params:    54,476,804
+
+[2/4] Calibrating (128 samples)...
+[Calib] Sampled 128 flows, 4 batches (batch_size=32)
+
+[3/4] Pruning: metric=magnitude, sparsity=70%
+[Pruner] Found 6 prunable linear layers
+  encoder.transformer.0.self_attn.linear_layers.0: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.1: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.2: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.final_linear: torch.Size([768, 768])
+  encoder.transformer.0.feed_forward.linear_1: torch.Size([256, 768])
+  encoder.transformer.0.feed_forward.linear_2: torch.Size([768, 256])
+[Pruner] Calibrating with metric='magnitude', sparsity=0.7
+[Pruner] Calibration complete
+[Pruner] Pruning 6 layers at 70% sparsity (per-row)...
+[Pruner] Done. Effective sparsity: 69.92% (1,924,608/2,752,512 weights zeroed)
+
+======================================================================
+Layer                                                Shape   Sparsity
+----------------------------------------------------------------------
+  encoder.transformer.0.self_attn.linear_layers.0      768x768     69.9%
+  encoder.transformer.0.self_attn.linear_layers.1      768x768     69.9%
+  encoder.transformer.0.self_attn.linear_layers.2      768x768     69.9%
+  encoder.transformer.0.self_attn.final_linear      768x768     69.9%
+  encoder.transformer.0.feed_forward.linear_1      256x768     69.9%
+  encoder.transformer.0.feed_forward.linear_2      768x256     69.9%
+----------------------------------------------------------------------
+  GLOBAL                                         2,752,512    69.92%
+  Metric: magnitude, Target: 70%
+======================================================================
+
+[4/4] Evaluating PRUNED model...
+  Accuracy:  0.9736
+  F1-macro:  0.9736
+  Inference: 0.11 ms/sample
+  Density:   96.47%
+
+============================================================
+  RETENTION: 99.4%
+  F1 DELTA:  -0.0056
+============================================================
+
+Evaluating on TEST set...
+  Test Accuracy: 0.9764
+  Test F1-macro: 0.9765
+
+========== wanda @ 0.7 ==========
+/home/romain/projects/NetGPT_work/finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 17:03:41,709 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:03:42,038 INFO] Acc. (Correct/Total): 0.9764 (703/720) 
+[2026-05-19 17:03:42,340 INFO] Acc. (Correct/Total): 0.9778 (704/720) 
+
+============================================================
+ NetGPT Post-Training Pruning
+  Metric:     wanda
+  Sparsity:   70%
+  N_calib:    128
+  Seed:       42
+  Seq_length: 64
+  Labels:     4
+============================================================
+
+  [Shape-aware load] 24/24 params loaded, 0 random-init
+Train: 5760, Dev: 720, Test: 720
+
+[1/4] Evaluating DENSE model...
+  Accuracy:  0.9792
+  F1-macro:  0.9792
+  Inference: 0.11 ms/sample
+  Params:    54,476,804
+
+[2/4] Calibrating (128 samples)...
+[Calib] Sampled 128 flows, 4 batches (batch_size=32)
+
+[3/4] Pruning: metric=wanda, sparsity=70%
+[Pruner] Found 6 prunable linear layers
+  encoder.transformer.0.self_attn.linear_layers.0: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.1: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.2: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.final_linear: torch.Size([768, 768])
+  encoder.transformer.0.feed_forward.linear_1: torch.Size([256, 768])
+  encoder.transformer.0.feed_forward.linear_2: torch.Size([768, 256])
+[Pruner] Calibrating with metric='wanda', sparsity=0.7
+[Pruner] Activation norms collected for 6 layers
+[Pruner] Calibration complete
+[Pruner] Pruning 6 layers at 70% sparsity (per-row)...
+[Pruner] Done. Effective sparsity: 69.92% (1,924,608/2,752,512 weights zeroed)
+
+======================================================================
+Layer                                                Shape   Sparsity
+----------------------------------------------------------------------
+  encoder.transformer.0.self_attn.linear_layers.0      768x768     69.9%
+  encoder.transformer.0.self_attn.linear_layers.1      768x768     69.9%
+  encoder.transformer.0.self_attn.linear_layers.2      768x768     69.9%
+  encoder.transformer.0.self_attn.final_linear      768x768     69.9%
+  encoder.transformer.0.feed_forward.linear_1      256x768     69.9%
+  encoder.transformer.0.feed_forward.linear_2      768x256     69.9%
+----------------------------------------------------------------------
+  GLOBAL                                         2,752,512    69.92%
+  Metric: wanda, Target: 70%
+======================================================================
+
+[4/4] Evaluating PRUNED model...
+  Accuracy:  0.9764
+  F1-macro:  0.9764
+  Inference: 0.11 ms/sample
+  Density:   96.47%
+
+============================================================
+  RETENTION: 99.7%
+  F1 DELTA:  -0.0028
+============================================================
+
+Evaluating on TEST set...
+  Test Accuracy: 0.9778
+  Test F1-macro: 0.9779
+
+========== pruner_zero @ 0.7 ==========
+/home/romain/projects/NetGPT_work/finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-05-19 17:04:09,745 INFO] Acc. (Correct/Total): 0.9792 (705/720) 
+[2026-05-19 17:04:10,200 INFO] Acc. (Correct/Total): 0.9694 (698/720) 
+[2026-05-19 17:04:10,535 INFO] Acc. (Correct/Total): 0.9764 (703/720) 
+
+============================================================
+ NetGPT Post-Training Pruning
+  Metric:     pruner_zero
+  Sparsity:   70%
+  N_calib:    128
+  Seed:       42
+  Seq_length: 64
+  Labels:     4
+============================================================
+
+  [Shape-aware load] 24/24 params loaded, 0 random-init
+Train: 5760, Dev: 720, Test: 720
+
+[1/4] Evaluating DENSE model...
+  Accuracy:  0.9792
+  F1-macro:  0.9792
+  Inference: 0.11 ms/sample
+  Params:    54,476,804
+
+[2/4] Calibrating (128 samples)...
+[Calib] Sampled 128 flows, 4 batches (batch_size=32)
+
+[3/4] Pruning: metric=pruner_zero, sparsity=70%
+[Pruner] Found 6 prunable linear layers
+  encoder.transformer.0.self_attn.linear_layers.0: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.1: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.linear_layers.2: torch.Size([768, 768])
+  encoder.transformer.0.self_attn.final_linear: torch.Size([768, 768])
+  encoder.transformer.0.feed_forward.linear_1: torch.Size([256, 768])
+  encoder.transformer.0.feed_forward.linear_2: torch.Size([768, 256])
+[Pruner] Calibrating with metric='pruner_zero', sparsity=0.7
+[Pruner] Gradients collected over 4 batches
+[Pruner] Calibration complete
+[Pruner] Pruning 6 layers at 70% sparsity (per-row)...
+[Pruner] Done. Effective sparsity: 69.92% (1,924,608/2,752,512 weights zeroed)
+
+======================================================================
+Layer                                                Shape   Sparsity
+----------------------------------------------------------------------
+  encoder.transformer.0.self_attn.linear_layers.0      768x768     69.9%
+  encoder.transformer.0.self_attn.linear_layers.1      768x768     69.9%
+  encoder.transformer.0.self_attn.linear_layers.2      768x768     69.9%
+  encoder.transformer.0.self_attn.final_linear      768x768     69.9%
+  encoder.transformer.0.feed_forward.linear_1      256x768     69.9%
+  encoder.transformer.0.feed_forward.linear_2      768x256     69.9%
+----------------------------------------------------------------------
+  GLOBAL                                         2,752,512    69.92%
+  Metric: pruner_zero, Target: 70%
+======================================================================
+
+[4/4] Evaluating PRUNED model...
+  Accuracy:  0.9694
+  F1-macro:  0.9695
+  Inference: 0.11 ms/sample
+  Density:   96.47%
+
+============================================================
+  RETENTION: 99.0%
+  F1 DELTA:  -0.0097
+============================================================
+
+Evaluating on TEST set...
+  Test Accuracy: 0.9764
+  Test F1-macro: 0.9765
+
+========== magnitude @ 0.8 ==========
