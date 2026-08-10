@@ -1,0 +1,13 @@
+=== RESULTATS COMPLETS NetGPT ===
+Dataset      | Modele              | Params    | Test Acc | Test F1
+newds        | Teacher 12L         | 136.7M    | 96.25%   | 0.9624
+newds        | Teacher pruned 50%  | ~68M actifs| 96.25%  | 0.9624
+newds        | Student 6L          | 94.2M     | 95.63%   | 0.9562
+newds        | Student pruned 50%  | ~47M actifs| 95.00%  | 0.9500
+ISCX         | Teacher 12L         | 136.7M    | 100%     | 1.0000
+ISCX         | Student 6L          | 94.2M     | 100%     | 1.0000
+ISCX         | Student pruned 50%  | ~47M actifs| 100%    | 1.0000
+BoT-IoT      | Teacher 12L         | 136.7M    | 100%     | 1.0000
+BoT-IoT      | Student 6L          | 94.2M     | 100%     | 1.0000
+BoT-IoT      | Student pruned 50%  | ~47M actifs| 100%    | 1.0000
+Sweep newds  | cliff: 62-70%, effondrement 72-78%

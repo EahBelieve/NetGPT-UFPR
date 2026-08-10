@@ -1,0 +1,23 @@
+{
+    "emb_size": 768,
+    "feedforward_size": 256,
+    "hidden_size": 768,
+    "hidden_act": "gelu_fast",
+    "heads_num": 12,
+    "layers_num": 1,
+    "max_seq_length": 1024,
+    "dropout": 0.1,
+    "data_processor": "lm",
+    "embedding": [
+        "word",
+        "pos"
+    ],
+    "remove_embedding_layernorm": true,
+    "encoder": "transformer",
+    "mask": "causal",
+    "layernorm_positioning": "pre",
+    "target": [
+        "lm"
+    ],
+    "tie_weights": true
+}

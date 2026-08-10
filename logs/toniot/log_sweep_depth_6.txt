@@ -1,0 +1,67 @@
+finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-07-03 19:16:18,124 INFO] Batch size: 16
+[2026-07-03 19:16:18,124 INFO] The number of training instances: 16000
+[2026-07-03 19:16:18,586 INFO] Start training.
+  [Shape-aware load] 100/104 params loaded, 4 random-init
+  0%|          | 0/4 [00:00<?, ?it/s][2026-07-03 19:16:18,587 INFO] 4
+[2026-07-03 19:16:41,260 INFO] Epoch id: 1, Training steps: 100, Avg loss: 0.956
+[2026-07-03 19:17:07,545 INFO] Epoch id: 1, Training steps: 200, Avg loss: 0.576
+[2026-07-03 19:17:34,924 INFO] Epoch id: 1, Training steps: 300, Avg loss: 0.497
+[2026-07-03 19:18:06,364 INFO] Epoch id: 1, Training steps: 400, Avg loss: 0.363
+[2026-07-03 19:18:37,829 INFO] Epoch id: 1, Training steps: 500, Avg loss: 0.346
+[2026-07-03 19:19:09,520 INFO] Epoch id: 1, Training steps: 600, Avg loss: 0.331
+[2026-07-03 19:19:38,247 INFO] Epoch id: 1, Training steps: 700, Avg loss: 0.278
+[2026-07-03 19:20:09,879 INFO] Epoch id: 1, Training steps: 800, Avg loss: 0.274
+[2026-07-03 19:20:38,444 INFO] Epoch id: 1, Training steps: 900, Avg loss: 0.261
+[2026-07-03 19:21:05,746 INFO] Epoch id: 1, Training steps: 1000, Avg loss: 0.289
+[2026-07-03 19:21:15,395 INFO] Acc. (Correct/Total): 0.8860 (1772/2000) 
+ 25%|██▌       | 1/4 [04:57<14:52, 297.43s/it][2026-07-03 19:21:16,018 INFO] 4
+[2026-07-03 19:21:42,774 INFO] Epoch id: 2, Training steps: 100, Avg loss: 0.264
+[2026-07-03 19:22:09,048 INFO] Epoch id: 2, Training steps: 200, Avg loss: 0.268
+[2026-07-03 19:22:42,854 INFO] Epoch id: 2, Training steps: 300, Avg loss: 0.280
+[2026-07-03 19:23:16,219 INFO] Epoch id: 2, Training steps: 400, Avg loss: 0.286
+[2026-07-03 19:23:51,269 INFO] Epoch id: 2, Training steps: 500, Avg loss: 0.245
+[2026-07-03 19:24:22,565 INFO] Epoch id: 2, Training steps: 600, Avg loss: 0.264
+[2026-07-03 19:24:51,971 INFO] Epoch id: 2, Training steps: 700, Avg loss: 0.258
+[2026-07-03 19:25:21,190 INFO] Epoch id: 2, Training steps: 800, Avg loss: 0.248
+[2026-07-03 19:25:47,750 INFO] Epoch id: 2, Training steps: 900, Avg loss: 0.269
+[2026-07-03 19:26:16,340 INFO] Epoch id: 2, Training steps: 1000, Avg loss: 0.266
+[2026-07-03 19:26:25,701 INFO] Acc. (Correct/Total): 0.9055 (1811/2000) 
+ 50%|█████     | 2/4 [10:07<10:10, 305.03s/it][2026-07-03 19:26:26,369 INFO] 4
+[2026-07-03 19:26:55,846 INFO] Epoch id: 3, Training steps: 100, Avg loss: 0.247
+[2026-07-03 19:27:25,330 INFO] Epoch id: 3, Training steps: 200, Avg loss: 0.244
+[2026-07-03 19:27:54,129 INFO] Epoch id: 3, Training steps: 300, Avg loss: 0.237
+[2026-07-03 19:28:22,723 INFO] Epoch id: 3, Training steps: 400, Avg loss: 0.244
+[2026-07-03 19:28:52,672 INFO] Epoch id: 3, Training steps: 500, Avg loss: 0.244
+[2026-07-03 19:29:23,031 INFO] Epoch id: 3, Training steps: 600, Avg loss: 0.250
+[2026-07-03 19:29:51,968 INFO] Epoch id: 3, Training steps: 700, Avg loss: 0.240
+[2026-07-03 19:30:20,446 INFO] Epoch id: 3, Training steps: 800, Avg loss: 0.236
+[2026-07-03 19:30:47,620 INFO] Epoch id: 3, Training steps: 900, Avg loss: 0.277
+[2026-07-03 19:31:20,171 INFO] Epoch id: 3, Training steps: 1000, Avg loss: 0.254
+[2026-07-03 19:31:30,360 INFO] Acc. (Correct/Total): 0.9075 (1815/2000) 
+ 75%|███████▌  | 3/4 [15:12<05:04, 304.83s/it][2026-07-03 19:31:30,952 INFO] 4
+[2026-07-03 19:31:59,607 INFO] Epoch id: 4, Training steps: 100, Avg loss: 0.245
+[2026-07-03 19:32:26,925 INFO] Epoch id: 4, Training steps: 200, Avg loss: 0.217
+[2026-07-03 19:32:53,643 INFO] Epoch id: 4, Training steps: 300, Avg loss: 0.235
+[2026-07-03 19:33:21,101 INFO] Epoch id: 4, Training steps: 400, Avg loss: 0.219
+[2026-07-03 19:33:52,658 INFO] Epoch id: 4, Training steps: 500, Avg loss: 0.245
+[2026-07-03 19:34:20,979 INFO] Epoch id: 4, Training steps: 600, Avg loss: 0.225
+[2026-07-03 19:34:50,315 INFO] Epoch id: 4, Training steps: 700, Avg loss: 0.221
+[2026-07-03 19:35:20,351 INFO] Epoch id: 4, Training steps: 800, Avg loss: 0.225
+[2026-07-03 19:35:49,338 INFO] Epoch id: 4, Training steps: 900, Avg loss: 0.232
+[2026-07-03 19:36:20,394 INFO] Epoch id: 4, Training steps: 1000, Avg loss: 0.221
+[2026-07-03 19:36:29,905 INFO] Acc. (Correct/Total): 0.9065 (1813/2000) 
+100%|██████████| 4/4 [20:11<00:00, 302.51s/it]100%|██████████| 4/4 [20:11<00:00, 302.83s/it]
+[2026-07-03 19:36:29,906 INFO] Test set evaluation.
+finetune/run_understanding.py:380: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  args.model.load_state_dict(torch.load(args.output_model_path))
+[2026-07-03 19:36:38,948 INFO] Label 0: 0.953, 0.892, 0.921
+[2026-07-03 19:36:38,948 INFO] Label 1: 0.809, 1.000, 0.894
+[2026-07-03 19:36:38,948 INFO] Label 2: 0.998, 0.996, 0.997
+[2026-07-03 19:36:38,949 INFO] Label 3: 0.923, 0.766, 0.837
+[2026-07-03 19:36:38,949 INFO] Acc. (Correct/Total): 0.9135 (1827/2000) 
+tensor([[446,   0,   2,  20],
+        [ 21, 500,   0,  97],
+        [  1,   0, 498,   0],
+        [ 32,   0,   0, 383]])

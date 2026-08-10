@@ -1,0 +1,64 @@
+[2026-07-03 17:54:11,202 INFO] Batch size: 16
+[2026-07-03 17:54:11,202 INFO] The number of training instances: 16000
+[2026-07-03 17:54:11,704 INFO] Start training.
+  0%|          | 0/4 [00:00<?, ?it/s][2026-07-03 17:54:11,705 INFO] 4
+[2026-07-03 17:54:16,302 INFO] Epoch id: 1, Training steps: 100, Avg loss: 1.272
+[2026-07-03 17:54:19,044 INFO] Epoch id: 1, Training steps: 200, Avg loss: 0.835
+[2026-07-03 17:54:21,790 INFO] Epoch id: 1, Training steps: 300, Avg loss: 0.592
+[2026-07-03 17:54:24,519 INFO] Epoch id: 1, Training steps: 400, Avg loss: 0.496
+[2026-07-03 17:54:27,252 INFO] Epoch id: 1, Training steps: 500, Avg loss: 0.445
+[2026-07-03 17:54:30,028 INFO] Epoch id: 1, Training steps: 600, Avg loss: 0.384
+[2026-07-03 17:54:32,917 INFO] Epoch id: 1, Training steps: 700, Avg loss: 0.317
+[2026-07-03 17:54:35,973 INFO] Epoch id: 1, Training steps: 800, Avg loss: 0.289
+[2026-07-03 17:54:37,549 INFO] Epoch id: 1, Training steps: 900, Avg loss: 0.283
+[2026-07-03 17:54:40,574 INFO] Epoch id: 1, Training steps: 1000, Avg loss: 0.311
+[2026-07-03 17:54:42,198 INFO] Acc. (Correct/Total): 0.8940 (1788/2000) 
+ 25%|██▌       | 1/4 [00:30<01:32, 30.84s/it][2026-07-03 17:54:42,547 INFO] 4
+[2026-07-03 17:54:45,601 INFO] Epoch id: 2, Training steps: 100, Avg loss: 0.270
+[2026-07-03 17:54:48,631 INFO] Epoch id: 2, Training steps: 200, Avg loss: 0.268
+[2026-07-03 17:54:51,649 INFO] Epoch id: 2, Training steps: 300, Avg loss: 0.265
+[2026-07-03 17:54:54,658 INFO] Epoch id: 2, Training steps: 400, Avg loss: 0.279
+[2026-07-03 17:54:57,684 INFO] Epoch id: 2, Training steps: 500, Avg loss: 0.237
+[2026-07-03 17:55:00,898 INFO] Epoch id: 2, Training steps: 600, Avg loss: 0.257
+[2026-07-03 17:55:04,316 INFO] Epoch id: 2, Training steps: 700, Avg loss: 0.239
+[2026-07-03 17:55:07,656 INFO] Epoch id: 2, Training steps: 800, Avg loss: 0.235
+[2026-07-03 17:55:09,283 INFO] Epoch id: 2, Training steps: 900, Avg loss: 0.251
+[2026-07-03 17:55:12,591 INFO] Epoch id: 2, Training steps: 1000, Avg loss: 0.237
+[2026-07-03 17:55:15,095 INFO] Acc. (Correct/Total): 0.9020 (1804/2000) 
+ 50%|█████     | 2/4 [01:03<01:04, 32.14s/it][2026-07-03 17:55:15,602 INFO] 4
+[2026-07-03 17:55:19,096 INFO] Epoch id: 3, Training steps: 100, Avg loss: 0.193
+[2026-07-03 17:55:22,350 INFO] Epoch id: 3, Training steps: 200, Avg loss: 0.185
+[2026-07-03 17:55:25,757 INFO] Epoch id: 3, Training steps: 300, Avg loss: 0.163
+[2026-07-03 17:55:28,976 INFO] Epoch id: 3, Training steps: 400, Avg loss: 0.161
+[2026-07-03 17:55:32,105 INFO] Epoch id: 3, Training steps: 500, Avg loss: 0.161
+[2026-07-03 17:55:35,333 INFO] Epoch id: 3, Training steps: 600, Avg loss: 0.152
+[2026-07-03 17:55:38,575 INFO] Epoch id: 3, Training steps: 700, Avg loss: 0.141
+[2026-07-03 17:55:40,460 INFO] Epoch id: 3, Training steps: 800, Avg loss: 0.143
+[2026-07-03 17:55:43,799 INFO] Epoch id: 3, Training steps: 900, Avg loss: 0.160
+[2026-07-03 17:55:47,169 INFO] Epoch id: 3, Training steps: 1000, Avg loss: 0.143
+[2026-07-03 17:55:49,152 INFO] Acc. (Correct/Total): 0.8705 (1741/2000) 
+ 75%|███████▌  | 3/4 [01:37<00:32, 32.79s/it][2026-07-03 17:55:49,153 INFO] 4
+[2026-07-03 17:55:52,317 INFO] Epoch id: 4, Training steps: 100, Avg loss: 0.100
+[2026-07-03 17:55:55,380 INFO] Epoch id: 4, Training steps: 200, Avg loss: 0.086
+[2026-07-03 17:55:58,514 INFO] Epoch id: 4, Training steps: 300, Avg loss: 0.095
+[2026-07-03 17:56:01,811 INFO] Epoch id: 4, Training steps: 400, Avg loss: 0.084
+[2026-07-03 17:56:05,002 INFO] Epoch id: 4, Training steps: 500, Avg loss: 0.084
+[2026-07-03 17:56:08,299 INFO] Epoch id: 4, Training steps: 600, Avg loss: 0.073
+[2026-07-03 17:56:10,148 INFO] Epoch id: 4, Training steps: 700, Avg loss: 0.075
+[2026-07-03 17:56:13,209 INFO] Epoch id: 4, Training steps: 800, Avg loss: 0.077
+[2026-07-03 17:56:16,280 INFO] Epoch id: 4, Training steps: 900, Avg loss: 0.075
+[2026-07-03 17:56:19,404 INFO] Epoch id: 4, Training steps: 1000, Avg loss: 0.077
+[2026-07-03 17:56:21,200 INFO] Acc. (Correct/Total): 0.8605 (1721/2000) 
+100%|██████████| 4/4 [02:09<00:00, 32.50s/it]100%|██████████| 4/4 [02:09<00:00, 32.37s/it]
+[2026-07-03 17:56:21,203 INFO] Test set evaluation.
+finetune/run_understanding.py:380: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  args.model.load_state_dict(torch.load(args.output_model_path))
+[2026-07-03 17:56:23,297 INFO] Label 0: 0.950, 0.870, 0.908
+[2026-07-03 17:56:23,297 INFO] Label 1: 0.809, 1.000, 0.894
+[2026-07-03 17:56:23,297 INFO] Label 2: 0.998, 0.996, 0.997
+[2026-07-03 17:56:23,297 INFO] Label 3: 0.894, 0.760, 0.822
+[2026-07-03 17:56:23,297 INFO] Acc. (Correct/Total): 0.9065 (1813/2000) 
+tensor([[435,   0,   0,  23],
+        [ 21, 500,   0,  97],
+        [  1,   0, 498,   0],
+        [ 43,   0,   2, 380]])

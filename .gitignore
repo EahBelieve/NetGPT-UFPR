@@ -23,3 +23,11 @@ slim_sweep_dff.txt
 test_6L12H_newds.txt
 models/gpt2/slim_config_ff*.json
 *.Zone.Identifier
+*.bin
+*.npz
+*.pt
+*.pth
+finetune_dataset*/
+flows_multiclass/
+middle*/
+__pycache__/

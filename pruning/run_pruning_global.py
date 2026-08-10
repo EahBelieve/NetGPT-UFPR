@@ -257,7 +257,7 @@ def main():
     parser.add_argument("--soft_alpha", type=float, default=0.5)
     parser.add_argument("--labels_num", type=int, default=2)
     parser.add_argument("--metric", default="pruner_zero",
-                        choices=["magnitude", "wanda", "pruner_zero"])
+                        choices=list(METRICS.keys()))
     parser.add_argument("--sparsity", type=float, default=0.5)
     parser.add_argument("--n_calib", type=int, default=128)
     parser.add_argument("--prune_output", action="store_true")
@@ -284,7 +284,7 @@ def main():
     # 1) Dense evaluation
     print("\n[1/3] Modele DENSE...")
     model.eval()
-    dense_acc = evaluate(args, devset)
+    dense_acc_full = evaluate(args, devset)
     if testset:
         dense_test = evaluate(args, testset)
 
@@ -306,12 +306,17 @@ def main():
     # 4) Pruned evaluation
     print(f"\n[3/3] Modele PRUNE...")
     args.model = model_gl
-    pruned_acc = evaluate(args, devset)
+    pruned_acc_full = evaluate(args, devset)
     if testset:
         pruned_test = evaluate(args, testset)
 
     # Summary
     print(f"\n{'='*50}")
+    dense_test = dense_test[0] if isinstance(dense_test, tuple) else dense_test
+    pruned_test = pruned_test[0] if isinstance(pruned_test, tuple) else pruned_test
+    dense_acc = dense_acc_full[0] if isinstance(dense_acc_full, tuple) else dense_acc_full
+    pruned_acc = pruned_acc_full[0] if isinstance(pruned_acc_full, tuple) else pruned_acc_full
+
     print(f"  DENSE  : dev={dense_acc:.4f}" +
           (f"  test={dense_test:.4f}" if testset else ""))
     print(f"  PRUNED : dev={pruned_acc:.4f}" +

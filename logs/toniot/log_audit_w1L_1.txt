@@ -1,0 +1,223 @@
+finetune/run_understanding.py:88: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ckpt = torch.load(args.pretrained_model_path, map_location="cpu"); ms = model.state_dict(); filtered = {k: v for k, v in ckpt.items() if k in ms and v.shape == ms[k].shape}; print(f"  [Shape-aware load] {len(filtered)}/{len(ms)} params loaded, {len(ms)-len(filtered)} random-init"); model.load_state_dict(filtered, strict=False)
+[2026-07-03 22:02:24,069 INFO] Batch size: 16
+[2026-07-03 22:02:24,070 INFO] The number of training instances: 80000
+[2026-07-03 22:02:24,643 INFO] Start training.
+  [Shape-aware load] 17/24 params loaded, 7 random-init
+  0%|          | 0/4 [00:00<?, ?it/s][2026-07-03 22:02:24,645 INFO] 4
+[2026-07-03 22:02:29,723 INFO] Epoch id: 1, Training steps: 100, Avg loss: 0.639
+[2026-07-03 22:02:32,290 INFO] Epoch id: 1, Training steps: 200, Avg loss: 0.313
+[2026-07-03 22:02:34,841 INFO] Epoch id: 1, Training steps: 300, Avg loss: 0.054
+[2026-07-03 22:02:38,187 INFO] Epoch id: 1, Training steps: 400, Avg loss: 0.015
+[2026-07-03 22:02:40,754 INFO] Epoch id: 1, Training steps: 500, Avg loss: 0.006
+[2026-07-03 22:02:43,299 INFO] Epoch id: 1, Training steps: 600, Avg loss: 0.004
+[2026-07-03 22:02:45,903 INFO] Epoch id: 1, Training steps: 700, Avg loss: 0.004
+[2026-07-03 22:02:48,425 INFO] Epoch id: 1, Training steps: 800, Avg loss: 0.002
+[2026-07-03 22:02:50,947 INFO] Epoch id: 1, Training steps: 900, Avg loss: 0.001
+[2026-07-03 22:02:53,475 INFO] Epoch id: 1, Training steps: 1000, Avg loss: 0.001
+[2026-07-03 22:02:56,190 INFO] Epoch id: 1, Training steps: 1100, Avg loss: 0.001
+[2026-07-03 22:02:59,017 INFO] Epoch id: 1, Training steps: 1200, Avg loss: 0.001
+[2026-07-03 22:03:01,869 INFO] Epoch id: 1, Training steps: 1300, Avg loss: 0.000
+[2026-07-03 22:03:04,708 INFO] Epoch id: 1, Training steps: 1400, Avg loss: 0.000
+[2026-07-03 22:03:07,531 INFO] Epoch id: 1, Training steps: 1500, Avg loss: 0.000
+[2026-07-03 22:03:11,116 INFO] Epoch id: 1, Training steps: 1600, Avg loss: 0.000
+[2026-07-03 22:03:13,907 INFO] Epoch id: 1, Training steps: 1700, Avg loss: 0.000
+[2026-07-03 22:03:16,690 INFO] Epoch id: 1, Training steps: 1800, Avg loss: 0.000
+[2026-07-03 22:03:19,469 INFO] Epoch id: 1, Training steps: 1900, Avg loss: 0.000
+[2026-07-03 22:03:22,248 INFO] Epoch id: 1, Training steps: 2000, Avg loss: 0.000
+[2026-07-03 22:03:24,980 INFO] Epoch id: 1, Training steps: 2100, Avg loss: 0.000
+[2026-07-03 22:03:27,706 INFO] Epoch id: 1, Training steps: 2200, Avg loss: 0.000
+[2026-07-03 22:03:30,464 INFO] Epoch id: 1, Training steps: 2300, Avg loss: 0.000
+[2026-07-03 22:03:33,230 INFO] Epoch id: 1, Training steps: 2400, Avg loss: 0.000
+[2026-07-03 22:03:35,997 INFO] Epoch id: 1, Training steps: 2500, Avg loss: 0.000
+[2026-07-03 22:03:38,769 INFO] Epoch id: 1, Training steps: 2600, Avg loss: 0.000
+[2026-07-03 22:03:42,289 INFO] Epoch id: 1, Training steps: 2700, Avg loss: 0.000
+[2026-07-03 22:03:45,076 INFO] Epoch id: 1, Training steps: 2800, Avg loss: 0.000
+[2026-07-03 22:03:47,823 INFO] Epoch id: 1, Training steps: 2900, Avg loss: 0.000
+[2026-07-03 22:03:50,558 INFO] Epoch id: 1, Training steps: 3000, Avg loss: 0.000
+[2026-07-03 22:03:53,316 INFO] Epoch id: 1, Training steps: 3100, Avg loss: 0.000
+[2026-07-03 22:03:56,071 INFO] Epoch id: 1, Training steps: 3200, Avg loss: 0.000
+[2026-07-03 22:03:58,804 INFO] Epoch id: 1, Training steps: 3300, Avg loss: 0.000
+[2026-07-03 22:04:01,598 INFO] Epoch id: 1, Training steps: 3400, Avg loss: 0.000
+[2026-07-03 22:04:04,377 INFO] Epoch id: 1, Training steps: 3500, Avg loss: 0.000
+[2026-07-03 22:04:07,166 INFO] Epoch id: 1, Training steps: 3600, Avg loss: 0.000
+[2026-07-03 22:04:09,876 INFO] Epoch id: 1, Training steps: 3700, Avg loss: 0.000
+[2026-07-03 22:04:12,541 INFO] Epoch id: 1, Training steps: 3800, Avg loss: 0.000
+[2026-07-03 22:04:15,739 INFO] Epoch id: 1, Training steps: 3900, Avg loss: 0.000
+[2026-07-03 22:04:18,559 INFO] Epoch id: 1, Training steps: 4000, Avg loss: 0.000
+[2026-07-03 22:04:21,260 INFO] Epoch id: 1, Training steps: 4100, Avg loss: 0.000
+[2026-07-03 22:04:24,083 INFO] Epoch id: 1, Training steps: 4200, Avg loss: 0.000
+[2026-07-03 22:04:26,741 INFO] Epoch id: 1, Training steps: 4300, Avg loss: 0.000
+[2026-07-03 22:04:29,426 INFO] Epoch id: 1, Training steps: 4400, Avg loss: 0.000
+[2026-07-03 22:04:32,175 INFO] Epoch id: 1, Training steps: 4500, Avg loss: 0.000
+[2026-07-03 22:04:34,978 INFO] Epoch id: 1, Training steps: 4600, Avg loss: 0.000
+[2026-07-03 22:04:37,891 INFO] Epoch id: 1, Training steps: 4700, Avg loss: 0.000
+[2026-07-03 22:04:40,677 INFO] Epoch id: 1, Training steps: 4800, Avg loss: 0.000
+[2026-07-03 22:04:43,653 INFO] Epoch id: 1, Training steps: 4900, Avg loss: 0.000
+[2026-07-03 22:04:46,372 INFO] Epoch id: 1, Training steps: 5000, Avg loss: 0.000
+[2026-07-03 22:04:54,298 INFO] Acc. (Correct/Total): 1.0000 (10000/10000) 
+ 25%|██▌       | 1/4 [02:30<07:30, 150.06s/it][2026-07-03 22:04:54,706 INFO] 4
+[2026-07-03 22:04:58,076 INFO] Epoch id: 2, Training steps: 100, Avg loss: 0.000
+[2026-07-03 22:05:00,684 INFO] Epoch id: 2, Training steps: 200, Avg loss: 0.000
+[2026-07-03 22:05:03,336 INFO] Epoch id: 2, Training steps: 300, Avg loss: 0.000
+[2026-07-03 22:05:06,057 INFO] Epoch id: 2, Training steps: 400, Avg loss: 0.000
+[2026-07-03 22:05:08,779 INFO] Epoch id: 2, Training steps: 500, Avg loss: 0.000
+[2026-07-03 22:05:11,652 INFO] Epoch id: 2, Training steps: 600, Avg loss: 0.000
+[2026-07-03 22:05:14,352 INFO] Epoch id: 2, Training steps: 700, Avg loss: 0.000
+[2026-07-03 22:05:17,523 INFO] Epoch id: 2, Training steps: 800, Avg loss: 0.000
+[2026-07-03 22:05:20,884 INFO] Epoch id: 2, Training steps: 900, Avg loss: 0.000
+[2026-07-03 22:05:23,916 INFO] Epoch id: 2, Training steps: 1000, Avg loss: 0.000
+[2026-07-03 22:05:27,084 INFO] Epoch id: 2, Training steps: 1100, Avg loss: 0.000
+[2026-07-03 22:05:29,915 INFO] Epoch id: 2, Training steps: 1200, Avg loss: 0.000
+[2026-07-03 22:05:33,147 INFO] Epoch id: 2, Training steps: 1300, Avg loss: 0.000
+[2026-07-03 22:05:36,086 INFO] Epoch id: 2, Training steps: 1400, Avg loss: 0.000
+[2026-07-03 22:05:39,117 INFO] Epoch id: 2, Training steps: 1500, Avg loss: 0.000
+[2026-07-03 22:05:42,263 INFO] Epoch id: 2, Training steps: 1600, Avg loss: 0.000
+[2026-07-03 22:05:45,677 INFO] Epoch id: 2, Training steps: 1700, Avg loss: 0.000
+[2026-07-03 22:05:48,913 INFO] Epoch id: 2, Training steps: 1800, Avg loss: 0.000
+[2026-07-03 22:05:52,046 INFO] Epoch id: 2, Training steps: 1900, Avg loss: 0.000
+[2026-07-03 22:05:55,977 INFO] Epoch id: 2, Training steps: 2000, Avg loss: 0.000
+[2026-07-03 22:06:00,027 INFO] Epoch id: 2, Training steps: 2100, Avg loss: 0.000
+[2026-07-03 22:06:03,196 INFO] Epoch id: 2, Training steps: 2200, Avg loss: 0.000
+[2026-07-03 22:06:06,308 INFO] Epoch id: 2, Training steps: 2300, Avg loss: 0.000
+[2026-07-03 22:06:11,029 INFO] Epoch id: 2, Training steps: 2400, Avg loss: 0.000
+[2026-07-03 22:06:13,860 INFO] Epoch id: 2, Training steps: 2500, Avg loss: 0.000
+[2026-07-03 22:06:16,718 INFO] Epoch id: 2, Training steps: 2600, Avg loss: 0.000
+[2026-07-03 22:06:19,889 INFO] Epoch id: 2, Training steps: 2700, Avg loss: 0.000
+[2026-07-03 22:06:23,261 INFO] Epoch id: 2, Training steps: 2800, Avg loss: 0.000
+[2026-07-03 22:06:27,517 INFO] Epoch id: 2, Training steps: 2900, Avg loss: 0.000
+[2026-07-03 22:06:30,913 INFO] Epoch id: 2, Training steps: 3000, Avg loss: 0.000
+[2026-07-03 22:06:34,055 INFO] Epoch id: 2, Training steps: 3100, Avg loss: 0.000
+[2026-07-03 22:06:37,152 INFO] Epoch id: 2, Training steps: 3200, Avg loss: 0.000
+[2026-07-03 22:06:41,011 INFO] Epoch id: 2, Training steps: 3300, Avg loss: 0.000
+[2026-07-03 22:06:44,004 INFO] Epoch id: 2, Training steps: 3400, Avg loss: 0.000
+[2026-07-03 22:06:48,106 INFO] Epoch id: 2, Training steps: 3500, Avg loss: 0.000
+[2026-07-03 22:06:51,330 INFO] Epoch id: 2, Training steps: 3600, Avg loss: 0.000
+[2026-07-03 22:06:55,298 INFO] Epoch id: 2, Training steps: 3700, Avg loss: 0.000
+[2026-07-03 22:06:58,569 INFO] Epoch id: 2, Training steps: 3800, Avg loss: 0.000
+[2026-07-03 22:07:02,453 INFO] Epoch id: 2, Training steps: 3900, Avg loss: 0.000
+[2026-07-03 22:07:05,612 INFO] Epoch id: 2, Training steps: 4000, Avg loss: 0.000
+[2026-07-03 22:07:10,469 INFO] Epoch id: 2, Training steps: 4100, Avg loss: 0.000
+[2026-07-03 22:07:13,342 INFO] Epoch id: 2, Training steps: 4200, Avg loss: 0.000
+[2026-07-03 22:07:17,316 INFO] Epoch id: 2, Training steps: 4300, Avg loss: 0.000
+[2026-07-03 22:07:21,282 INFO] Epoch id: 2, Training steps: 4400, Avg loss: 0.000
+[2026-07-03 22:07:24,417 INFO] Epoch id: 2, Training steps: 4500, Avg loss: 0.000
+[2026-07-03 22:07:27,566 INFO] Epoch id: 2, Training steps: 4600, Avg loss: 0.000
+[2026-07-03 22:07:30,623 INFO] Epoch id: 2, Training steps: 4700, Avg loss: 0.000
+[2026-07-03 22:07:34,792 INFO] Epoch id: 2, Training steps: 4800, Avg loss: 0.000
+[2026-07-03 22:07:38,670 INFO] Epoch id: 2, Training steps: 4900, Avg loss: 0.000
+[2026-07-03 22:07:41,826 INFO] Epoch id: 2, Training steps: 5000, Avg loss: 0.000
+[2026-07-03 22:07:48,472 INFO] Acc. (Correct/Total): 1.0000 (10000/10000) 
+ 50%|█████     | 2/4 [05:23<05:28, 164.01s/it][2026-07-03 22:07:48,477 INFO] 4
+[2026-07-03 22:07:51,645 INFO] Epoch id: 3, Training steps: 100, Avg loss: 0.000
+[2026-07-03 22:07:54,568 INFO] Epoch id: 3, Training steps: 200, Avg loss: 0.000
+[2026-07-03 22:07:57,418 INFO] Epoch id: 3, Training steps: 300, Avg loss: 0.000
+[2026-07-03 22:08:00,604 INFO] Epoch id: 3, Training steps: 400, Avg loss: 0.000
+[2026-07-03 22:08:04,691 INFO] Epoch id: 3, Training steps: 500, Avg loss: 0.000
+[2026-07-03 22:08:08,878 INFO] Epoch id: 3, Training steps: 600, Avg loss: 0.000
+[2026-07-03 22:08:12,145 INFO] Epoch id: 3, Training steps: 700, Avg loss: 0.000
+[2026-07-03 22:08:16,186 INFO] Epoch id: 3, Training steps: 800, Avg loss: 0.000
+[2026-07-03 22:08:19,218 INFO] Epoch id: 3, Training steps: 900, Avg loss: 0.000
+[2026-07-03 22:08:23,455 INFO] Epoch id: 3, Training steps: 1000, Avg loss: 0.000
+[2026-07-03 22:08:26,938 INFO] Epoch id: 3, Training steps: 1100, Avg loss: 0.000
+[2026-07-03 22:08:30,498 INFO] Epoch id: 3, Training steps: 1200, Avg loss: 0.000
+[2026-07-03 22:08:33,948 INFO] Epoch id: 3, Training steps: 1300, Avg loss: 0.000
+[2026-07-03 22:08:37,322 INFO] Epoch id: 3, Training steps: 1400, Avg loss: 0.000
+[2026-07-03 22:08:41,496 INFO] Epoch id: 3, Training steps: 1500, Avg loss: 0.000
+[2026-07-03 22:08:45,050 INFO] Epoch id: 3, Training steps: 1600, Avg loss: 0.000
+[2026-07-03 22:08:49,859 INFO] Epoch id: 3, Training steps: 1700, Avg loss: 0.000
+[2026-07-03 22:08:53,858 INFO] Epoch id: 3, Training steps: 1800, Avg loss: 0.000
+[2026-07-03 22:08:57,886 INFO] Epoch id: 3, Training steps: 1900, Avg loss: 0.000
+[2026-07-03 22:09:00,872 INFO] Epoch id: 3, Training steps: 2000, Avg loss: 0.000
+[2026-07-03 22:09:05,673 INFO] Epoch id: 3, Training steps: 2100, Avg loss: 0.000
+[2026-07-03 22:09:09,635 INFO] Epoch id: 3, Training steps: 2200, Avg loss: 0.000
+[2026-07-03 22:09:14,448 INFO] Epoch id: 3, Training steps: 2300, Avg loss: 0.000
+[2026-07-03 22:09:17,741 INFO] Epoch id: 3, Training steps: 2400, Avg loss: 0.000
+[2026-07-03 22:09:20,981 INFO] Epoch id: 3, Training steps: 2500, Avg loss: 0.000
+[2026-07-03 22:09:23,865 INFO] Epoch id: 3, Training steps: 2600, Avg loss: 0.000
+[2026-07-03 22:09:27,264 INFO] Epoch id: 3, Training steps: 2700, Avg loss: 0.000
+[2026-07-03 22:09:30,747 INFO] Epoch id: 3, Training steps: 2800, Avg loss: 0.000
+[2026-07-03 22:09:34,201 INFO] Epoch id: 3, Training steps: 2900, Avg loss: 0.000
+[2026-07-03 22:09:37,752 INFO] Epoch id: 3, Training steps: 3000, Avg loss: 0.000
+[2026-07-03 22:09:41,155 INFO] Epoch id: 3, Training steps: 3100, Avg loss: 0.000
+[2026-07-03 22:09:44,687 INFO] Epoch id: 3, Training steps: 3200, Avg loss: 0.000
+[2026-07-03 22:09:49,127 INFO] Epoch id: 3, Training steps: 3300, Avg loss: 0.000
+[2026-07-03 22:09:52,682 INFO] Epoch id: 3, Training steps: 3400, Avg loss: 0.000
+[2026-07-03 22:09:56,193 INFO] Epoch id: 3, Training steps: 3500, Avg loss: 0.000
+[2026-07-03 22:09:59,648 INFO] Epoch id: 3, Training steps: 3600, Avg loss: 0.000
+[2026-07-03 22:10:03,860 INFO] Epoch id: 3, Training steps: 3700, Avg loss: 0.000
+[2026-07-03 22:10:07,983 INFO] Epoch id: 3, Training steps: 3800, Avg loss: 0.000
+[2026-07-03 22:10:12,171 INFO] Epoch id: 3, Training steps: 3900, Avg loss: 0.000
+[2026-07-03 22:10:16,225 INFO] Epoch id: 3, Training steps: 4000, Avg loss: 0.000
+[2026-07-03 22:10:21,733 INFO] Epoch id: 3, Training steps: 4100, Avg loss: 0.000
+[2026-07-03 22:10:25,071 INFO] Epoch id: 3, Training steps: 4200, Avg loss: 0.000
+[2026-07-03 22:10:28,579 INFO] Epoch id: 3, Training steps: 4300, Avg loss: 0.000
+[2026-07-03 22:10:34,248 INFO] Epoch id: 3, Training steps: 4400, Avg loss: 0.000
+[2026-07-03 22:10:37,497 INFO] Epoch id: 3, Training steps: 4500, Avg loss: 0.000
+[2026-07-03 22:10:40,924 INFO] Epoch id: 3, Training steps: 4600, Avg loss: 0.000
+[2026-07-03 22:10:44,441 INFO] Epoch id: 3, Training steps: 4700, Avg loss: 0.000
+[2026-07-03 22:10:48,681 INFO] Epoch id: 3, Training steps: 4800, Avg loss: 0.000
+[2026-07-03 22:10:53,750 INFO] Epoch id: 3, Training steps: 4900, Avg loss: 0.000
+[2026-07-03 22:10:58,101 INFO] Epoch id: 3, Training steps: 5000, Avg loss: 0.000
+[2026-07-03 22:11:05,053 INFO] Acc. (Correct/Total): 1.0000 (10000/10000) 
+ 75%|███████▌  | 3/4 [08:40<02:58, 178.88s/it][2026-07-03 22:11:05,057 INFO] 4
+[2026-07-03 22:11:08,518 INFO] Epoch id: 4, Training steps: 100, Avg loss: 0.000
+[2026-07-03 22:11:11,333 INFO] Epoch id: 4, Training steps: 200, Avg loss: 0.000
+[2026-07-03 22:11:14,414 INFO] Epoch id: 4, Training steps: 300, Avg loss: 0.000
+[2026-07-03 22:11:18,342 INFO] Epoch id: 4, Training steps: 400, Avg loss: 0.000
+[2026-07-03 22:11:21,514 INFO] Epoch id: 4, Training steps: 500, Avg loss: 0.000
+[2026-07-03 22:11:26,417 INFO] Epoch id: 4, Training steps: 600, Avg loss: 0.000
+[2026-07-03 22:11:29,948 INFO] Epoch id: 4, Training steps: 700, Avg loss: 0.000
+[2026-07-03 22:11:33,433 INFO] Epoch id: 4, Training steps: 800, Avg loss: 0.000
+[2026-07-03 22:11:38,416 INFO] Epoch id: 4, Training steps: 900, Avg loss: 0.000
+[2026-07-03 22:11:41,236 INFO] Epoch id: 4, Training steps: 1000, Avg loss: 0.000
+[2026-07-03 22:11:44,475 INFO] Epoch id: 4, Training steps: 1100, Avg loss: 0.000
+[2026-07-03 22:11:47,833 INFO] Epoch id: 4, Training steps: 1200, Avg loss: 0.000
+[2026-07-03 22:11:51,310 INFO] Epoch id: 4, Training steps: 1300, Avg loss: 0.000
+[2026-07-03 22:11:54,684 INFO] Epoch id: 4, Training steps: 1400, Avg loss: 0.000
+[2026-07-03 22:11:58,159 INFO] Epoch id: 4, Training steps: 1500, Avg loss: 0.000
+[2026-07-03 22:12:02,725 INFO] Epoch id: 4, Training steps: 1600, Avg loss: 0.000
+[2026-07-03 22:12:06,214 INFO] Epoch id: 4, Training steps: 1700, Avg loss: 0.000
+[2026-07-03 22:12:09,627 INFO] Epoch id: 4, Training steps: 1800, Avg loss: 0.000
+[2026-07-03 22:12:13,038 INFO] Epoch id: 4, Training steps: 1900, Avg loss: 0.000
+[2026-07-03 22:12:17,617 INFO] Epoch id: 4, Training steps: 2000, Avg loss: 0.000
+[2026-07-03 22:12:21,031 INFO] Epoch id: 4, Training steps: 2100, Avg loss: 0.000
+[2026-07-03 22:12:25,209 INFO] Epoch id: 4, Training steps: 2200, Avg loss: 0.000
+[2026-07-03 22:12:28,791 INFO] Epoch id: 4, Training steps: 2300, Avg loss: 0.000
+[2026-07-03 22:12:34,829 INFO] Epoch id: 4, Training steps: 2400, Avg loss: 0.000
+[2026-07-03 22:12:38,264 INFO] Epoch id: 4, Training steps: 2500, Avg loss: 0.000
+[2026-07-03 22:12:42,075 INFO] Epoch id: 4, Training steps: 2600, Avg loss: 0.000
+[2026-07-03 22:12:46,083 INFO] Epoch id: 4, Training steps: 2700, Avg loss: 0.000
+[2026-07-03 22:12:49,587 INFO] Epoch id: 4, Training steps: 2800, Avg loss: 0.000
+[2026-07-03 22:12:54,382 INFO] Epoch id: 4, Training steps: 2900, Avg loss: 0.000
+[2026-07-03 22:12:57,887 INFO] Epoch id: 4, Training steps: 3000, Avg loss: 0.000
+[2026-07-03 22:13:02,138 INFO] Epoch id: 4, Training steps: 3100, Avg loss: 0.000
+[2026-07-03 22:13:08,652 INFO] Epoch id: 4, Training steps: 3200, Avg loss: 0.000
+[2026-07-03 22:13:12,085 INFO] Epoch id: 4, Training steps: 3300, Avg loss: 0.000
+[2026-07-03 22:13:16,795 INFO] Epoch id: 4, Training steps: 3400, Avg loss: 0.000
+[2026-07-03 22:13:20,242 INFO] Epoch id: 4, Training steps: 3500, Avg loss: 0.000
+[2026-07-03 22:13:24,772 INFO] Epoch id: 4, Training steps: 3600, Avg loss: 0.000
+[2026-07-03 22:13:28,289 INFO] Epoch id: 4, Training steps: 3700, Avg loss: 0.000
+[2026-07-03 22:13:31,822 INFO] Epoch id: 4, Training steps: 3800, Avg loss: 0.000
+[2026-07-03 22:13:36,720 INFO] Epoch id: 4, Training steps: 3900, Avg loss: 0.000
+[2026-07-03 22:13:41,724 INFO] Epoch id: 4, Training steps: 4000, Avg loss: 0.000
+[2026-07-03 22:13:46,015 INFO] Epoch id: 4, Training steps: 4100, Avg loss: 0.000
+[2026-07-03 22:13:52,698 INFO] Epoch id: 4, Training steps: 4200, Avg loss: 0.000
+[2026-07-03 22:13:56,056 INFO] Epoch id: 4, Training steps: 4300, Avg loss: 0.000
+[2026-07-03 22:13:59,495 INFO] Epoch id: 4, Training steps: 4400, Avg loss: 0.000
+[2026-07-03 22:14:03,696 INFO] Epoch id: 4, Training steps: 4500, Avg loss: 0.000
+[2026-07-03 22:14:07,126 INFO] Epoch id: 4, Training steps: 4600, Avg loss: 0.000
+[2026-07-03 22:14:10,563 INFO] Epoch id: 4, Training steps: 4700, Avg loss: 0.000
+[2026-07-03 22:14:14,789 INFO] Epoch id: 4, Training steps: 4800, Avg loss: 0.000
+[2026-07-03 22:14:19,840 INFO] Epoch id: 4, Training steps: 4900, Avg loss: 0.000
+[2026-07-03 22:14:24,022 INFO] Epoch id: 4, Training steps: 5000, Avg loss: 0.000
+[2026-07-03 22:14:30,617 INFO] Acc. (Correct/Total): 1.0000 (10000/10000) 
+100%|██████████| 4/4 [12:05<00:00, 189.42s/it]100%|██████████| 4/4 [12:05<00:00, 181.49s/it]
+[2026-07-03 22:14:30,623 INFO] Test set evaluation.
+finetune/run_understanding.py:380: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  args.model.load_state_dict(torch.load(args.output_model_path))
+[2026-07-03 22:14:37,707 INFO] Label 0: 1.000, 1.000, 1.000
+[2026-07-03 22:14:37,708 INFO] Label 1: 1.000, 1.000, 1.000
+[2026-07-03 22:14:37,708 INFO] Acc. (Correct/Total): 1.0000 (10000/10000) 
+tensor([[5000,    0],
+        [   0, 5000]])

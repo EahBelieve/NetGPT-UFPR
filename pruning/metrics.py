@@ -99,9 +99,18 @@ def pruner_zero_score(weight, gradients=None, **kwargs):
     return score
 
 
+
+def random_score(weight, **kwargs):
+    """Baseline: scores aleatoires (ShrinkBench/Blalock). Seed fixe pour reproductibilite."""
+    import torch
+    g = torch.Generator(device="cpu").manual_seed(42)
+    return torch.rand(weight.shape, generator=g).to(weight.device)
+
+
 # Registry for CLI access
 METRICS = {
     "magnitude": magnitude_score,
     "wanda": wanda_score,
     "pruner_zero": pruner_zero_score,
+    "random": random_score,
 }
