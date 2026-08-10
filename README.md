@@ -1,337 +1,269 @@
-# NetGPT-UFPR: Systematic Compression of a Pretrained Network Traffic Model
+# NetGPT-UFPR — Audit-First Compression of a Pretrained Network Traffic Transformer
 
-> **How Much Transformer Do You Need?**
-> A compression study of NetGPT for multi-class network attack detection.
+> **Probe the bytes before pretraining on them.**
+> How much of NetGPT does 4-class attack detection require? The answer forces
+> a prior question: what does the benchmark actually measure?
 
 ## Overview
 
-This repository contains the code, configurations, and analysis scripts for compressing [NetGPT](https://arxiv.org/abs/2304.09513), a GPT-2-based model pretrained on raw network traffic, for efficient attack detection. The project demonstrates that a **single Transformer layer** with minimal FFN (d_ff=256) matches the full 12-layer teacher at **98.06% accuracy** on 4-class classification (DDoS, DoS, scanning, normal).
+This repository contains the code, configurations, logs, and analysis scripts
+for **NetGPT-Slim**, a compressed version of
+[NetGPT](https://arxiv.org/abs/2304.09513) (a GPT-2 model pretrained on raw
+network traffic) built for multi-class attack detection under an
+**audit-first** methodology: no neural experiment is interpreted before the
+task itself has been audited for information leakage with interpretable
+probes (a position-indexed logistic regression, a depth-4 decision tree, and
+a chi-squared feature ranking on raw byte tokens).
 
-### Key Findings
+The audit exposed the binary benchmark inherited with the NetGPT codebase as
+decided by a single capture artifact (a Marvell EDSA switch tag, EtherType
+`0xDADA`, at a fixed byte position): every model, from a depth-4 tree to a
+one-neuron Transformer, scores 100%. We retired it and built
+**ToN-IoT-Clean**, a leakage-controlled 4-class dataset (DDoS / DoS / normal
+/ scanning; 20,000 flows) by per-flow label routing within a single
+[ToN-IoT](https://research.unsw.edu.au/projects/toniot-datasets) capture
+session, so that no capture-environment shortcut separates the classes.
 
-| Model | Layers | Heads | d_ff | Params (encoder) | Accuracy |
-|-------|--------|-------|------|-----------------|----------|
-| Teacher | 12 | 12 | 3072 | ~85M | 98.06% |
-| **NetGPT-Slim** | **1** | **12** | **256** | **~2.75M** | **98.06%** |
+### Key results (ToN-IoT-Clean, test n=2,000)
 
-- **Over-parameterization**: 1 layer = 12 layers for traffic classification
-- **Head boundary scrambling**: Changing head count (12→8) destroys pretrained attention — novel finding
-- **Truncation toxicity**: Truncated fine-tuned weights worse than random init — novel finding
-- **Pruning cliff**: Global pruning stable to 74%, sharp cliff at 76–78% sparsity
-- **Pruner-Zero superiority**: 71% accuracy at 90% sparsity vs ~50% for Magnitude/Wanda
+| Model | Layers / heads / d_ff | Encoder params | Accuracy | Macro F1 | Fine-tuning |
+|-------|----------------------|----------------|----------|----------|-------------|
+| Baseline model | 12 / 12 / 3072 | 84.9M | 91.30% | 0.912 | 14 m 33 s |
+| **NetGPT-Slim** | **1 / 12 / 256** | **2.75M (~31x less)** | **91.35%** | **0.913** | **2 m 08 s (~6.8x faster)** |
 
----
+- **The task, not the model, sets the ceiling**: 23 configurations spanning a
+  ~36x encoder-parameter range, pretrained or from scratch, land in a
+  0.95-point band that a raw-byte logistic regression matches at 91.40%.
+- **The computation lives upstream of the FFN**: a linear probe on the
+  pre-FFN representation reaches 87.75% (rank-3 between-class subspace, one
+  dominant axis); a one-neuron FFN recovers 90.80%. Width tracks the rank of
+  the discriminative residual, not capacity estimates.
+- **Two failure modes of pretrained-weight reuse** (documented with
+  mechanisms): *head boundary scrambling* (changing the head count collapses
+  accuracy to chance despite identical tensor shapes) and *truncation
+  toxicity* (truncated fine-tuned FFN weights underperform random
+  initialization).
+- **Pruning cliff with a random baseline**: all informed metrics
+  (Magnitude, Wanda, Pruner-Zero) hold ~91% up to 60% sparsity and collapse
+  across 70–80%; random pruning is at chance by 50% sparsity.
+
+> Note on terminology: the full fine-tuned model is called the **baseline
+> model** (not "teacher"): no knowledge distillation is used in this work.
 
 ## Built With
 
-This project is built on top of the following frameworks and tools:
-
-- **[UER-py](https://github.com/dbiir/UER-py)** (Universal Encoder Representations) — An open-source PyTorch toolkit for pre-training and fine-tuning Transformer models. UER-py provides modular components (embeddings, encoders, targets) that can be combined to implement architectures such as BERT, GPT-2, ELMo, and T5. NetGPT uses UER-py's GPT-2 implementation with custom hex tokenization and traffic-specific structural markers. The `uer/` directory in this repository contains the UER-py modules used by NetGPT.
-- **[NetGPT](https://arxiv.org/abs/2304.09513)** — A GPT-2-based foundation model that treats network traffic as a language: raw bytes are hex-encoded, tokenized with WordPiece, and structured with packet delimiters (`[pck]`), flow markers (`[cls]`), and task prompts (`[tsk]`).
-- **[Wanda](https://github.com/locuslab/wanda)** — Activation-aware pruning metric (Sun et al., ICLR 2024).
-- **[Pruner-Zero](https://github.com/pprp/Pruner-Zero)** — Automatically discovered pruning metric via genetic programming (Dong et al., ICML 2024).
-
----
+- **[UER-py](https://github.com/dbiir/UER-py)** — PyTorch toolkit whose GPT-2
+  implementation underlies NetGPT (the `uer/` directory).
+- **[NetGPT](https://arxiv.org/abs/2304.09513)** — GPT-2 foundation model
+  treating traffic as a language (hex tokens, `[pck]` packet delimiters).
+- **[Wanda](https://github.com/locuslab/wanda)** and
+  **[Pruner-Zero](https://github.com/pprp/Pruner-Zero)** — post-training
+  pruning metrics evaluated here against Magnitude and a random baseline.
+- **[ToN-IoT](https://research.unsw.edu.au/projects/toniot-datasets)** —
+  network captures with per-flow ground-truth labels, the basis of
+  ToN-IoT-Clean.
 
 ## Repository Structure
 
 ```
-NetGPT_work/
+NetGPT-UFPR/
 ├── assets/
-│   └── pretrained_model.bin              # Pretrained NetGPT checkpoint (not in repo)
-├── models/
-│   ├── encryptd_vocab.txt                # Hex-encoded WordPiece vocabulary
-│   └── gpt2/
-│       ├── config.json                   # Teacher config (12L/12H/d_ff=3072)
-│       ├── distil_config.json            # 6-layer student config
-│       ├── slim_config.json              # Slim config (6L/12H/d_ff=2048)
-│       ├── slim_final_config.json        # Final Slim (1L/12H/d_ff=256) ★
-│       ├── distil_L{1..6}.json           # Layer sweep configs
-│       └── distil_ff{256..3072}.json     # d_ff sweep configs
-├── uer/                                  # UER-py framework (model architecture)
-│   ├── utils/
-│   │   ├── config.py                     # Hyperparameter loading from JSON
-│   │   ├── constants.py                  # Special tokens, encoder/embedding maps
-│   │   ├── tokenizers.py                 # CharTokenizer for hex-encoded traffic
-│   │   └── vocab.py                      # Vocabulary loading
-│   ├── layers/
-│   │   ├── transformer.py                # TransformerLayer (attention + FFN + LN)
-│   │   ├── multi_headed_attn.py          # Multi-head causal self-attention
-│   │   └── position_ffn.py              # FFN with GELU activation
-│   ├── encoders/
-│   │   └── transformer_encoder.py        # Stacked Transformer layers
-│   └── embeddings/
-│       ├── word_embedding.py             # Token embeddings
-│       └── pos_embedding.py              # Learned positional embeddings
+│   └── pretrained_model.bin        # Pretrained NetGPT checkpoint (not in repo)
+├── configs/                        # All swept configurations (audit-first study)
+│   ├── teacher.json                # Baseline model (12L/12H/3072)
+│   ├── slim.json                   # NetGPT-Slim (1L/12H/256)
+│   ├── depth_{1..6}.json           # Depth sweep
+│   ├── w1L_{1,2,4,...,256}.json    # Sub-256 width sweep (1 layer)
+│   ├── width_{512..3072}.json      # 6-layer width sweep
+│   └── scramble.json               # Head boundary scrambling (h=8)
+├── gen_configs.py                  # Generates the sweep configs
 ├── pre-process/
-│   └── input_generation_understanding.py # PCAP → TSV preprocessing pipeline
-├── finetune/
-│   ├── run_understanding.py              # Fine-tuning with shape-aware loading
-│   ├── run_distillation.py               # Knowledge distillation (teacher→student)
-│   └── run_distillation_slim.py          # Slim distillation with FFN truncation
-├── pruning/
-│   ├── pruner.py                         # Pruning engine (Magnitude, Wanda, Pruner-Zero)
-│   ├── run_pruning.py                    # Per-layer pruning experiments
-│   └── run_pruning_global.py             # Global pruning with redundancy map
+│   ├── build_toniot_clean.py       # ToN-IoT-Clean construction: per-flow label
+│   │                               #   routing within one capture session,
+│   │                               #   balanced subsampling (5,000/class, seed 42)
+│   └── input_generation_understanding.py  # PCAP -> hex TSV (train/valid/test)
 ├── analysis/
-│   ├── svd_analysis.py                   # SVD decomposition of FFN weight matrices
-│   ├── activation_pca.py                 # PCA of post-GELU FFN activations
-│   └── measure_gelu_rate.py              # GELU activation sparsity measurement
-└── logs/                                 # Experiment logs (reproducibility)
-    ├── teacher_multiclass.txt
-    ├── slim_final.txt
-    ├── sweep_multiclass_layers.txt
-    ├── sweep_multiclass_dff.txt
-    ├── pruning_slim_global_sweep.txt
-    └── pruning_slim_pz_zoom.txt
+│   ├── linear_probe_bytes.py       # Stage-0 audit probes: LogReg, depth-4 tree,
+│   │                               #   chi2 ranking on raw byte tokens
+│   ├── extract_phi0.py             # Hook: pre-FFN pooled representation phi_0
+│   ├── analyze_phi0.py             # Linear probe on phi_0, LDA rank, residual
+│   ├── activation_rate.py          # GELU activation rate (alpha)
+│   ├── svd_analysis.py             # Effective rank of FFN weights
+│   └── activation_pca.py           # PCA of post-GELU activations
+├── finetune/
+│   └── run_understanding.py        # Fine-tuning with shape-aware loading
+├── pruning/
+│   ├── metrics.py                  # Magnitude, Wanda, Pruner-Zero + Random baseline
+│   ├── run_pruning_global.py       # Global pruning (non-uniform per-layer sparsity)
+│   └── run_pruning.py              # Per-layer pruning
+├── sweep_sub256.sh                 # Sub-256 width sweep driver
+├── logs/toniot/                    # Logs of every run reported in the paper
+└── results/                        # Pruning CSVs, benchmark JSONs
 ```
-
----
 
 ## Requirements
 
 | Dependency | Version |
 |------------|---------|
 | Python | 3.8+ |
-| PyTorch | ≥ 2.0 |
-| CUDA | ≥ 11.8 |
-| GPU VRAM | ≥ 6 GB (8+ GB recommended) |
-
-### Installation
+| PyTorch | >= 2.0 |
+| CUDA | >= 11.8 |
+| GPU | a single consumer GPU suffices (experiments ran on an RTX 4060) |
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/EahBelieve/NetGPT-UFPR.git
 cd NetGPT-UFPR
-
-# 2. Create a virtual environment (conda or venv)
-conda create -n netgpt python=3.8 -y
-conda activate netgpt
-
-# 3. Install PyTorch with CUDA support
-# Adjust the CUDA version to match your system (cu118, cu121, cu124...)
-pip install torch==2.4.0 --index-url https://download.pytorch.org/whl/cu118
-
-# 4. Install additional dependencies
+conda create -n netgpt python=3.8 -y && conda activate netgpt
+pip install torch --index-url https://download.pytorch.org/whl/cu118
 pip install six packaging psutil scikit-learn pandas scipy
-
-# 5. Verify GPU access
-python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}, Device: {torch.cuda.get_device_name(0)}')"
 ```
 
-### Pretrained Model
+The pretrained NetGPT checkpoint (`assets/pretrained_model.bin`) is required
+for all experiments; it is not included (size). Refer to the
+[NetGPT paper](https://arxiv.org/abs/2304.09513) for access.
 
-The pretrained NetGPT checkpoint (`pretrained_model.bin`) is required for all experiments. It was trained by the original NetGPT authors on large-scale network traffic using autoregressive (next-token prediction) pretraining. Place it in `assets/pretrained_model.bin`.
+## Pipeline (audit-first)
 
-> **Note**: This checkpoint is not included in the repository due to its size. Contact the [original authors](https://arxiv.org/abs/2304.09513) or refer to the NetGPT paper for access.
+All fine-tuning runs share one protocol: **4 epochs, batch size 16,
+`seq_length` 64, learning rate 2e-5 (AdamW), mean pooling, seed 42,
+shape-aware loading** (tensors with matching shapes are copied from the
+checkpoint, the rest are randomly initialized; omitted entirely for
+from-scratch runs).
 
----
+### Stage 0 — Byte-level task audit
 
-## Pipeline
-
-### Step 1: Dataset Preparation
-
-Extract TCP flows from PCAP files, organize by attack class, and preprocess into TSV format.
+Before any neural training, probe the task on raw byte tokens:
 
 ```bash
-# Create a directory with one subfolder per class
-# Labels are assigned alphabetically: 0=DDoS, 1=DoS, 2=normal, 3=scanning
-mkdir -p pcap_data/{DDoS,DoS,normal,scanning}
-# Place individual flow PCAP files in each subfolder
+python analysis/linear_probe_bytes.py \
+  --train finetune_dataset_toniot/train_dataset.tsv \
+  --test  finetune_dataset_toniot/test_dataset.tsv
+```
 
-# Run preprocessing
+If a single feature saturates a probe, the benchmark is leaked and must be
+retired from semantic claims. Otherwise the probe accuracy is the linear
+floor that any architectural claim must exceed.
+
+### Stage 1 — Leakage-controlled dataset (ToN-IoT-Clean)
+
+```bash
+# Route every flow of one labeled ToN-IoT capture session by its per-flow
+# label (benign included), verify 5-tuple alignment, balance 5,000/class:
+python pre-process/build_toniot_clean.py --build --per_class 5000
+
+# Hex-tokenize into train/valid/test TSVs (80/10/10):
 python pre-process/input_generation_understanding.py \
-  --pcap_path pcap_data/ \
-  --dataset_dir finetune_dataset/ \
-  --middle_save_path middle_cache/ \
+  --pcap_path <out>/pcap_multiclass/ \
+  --dataset_dir finetune_dataset_toniot/ \
+  --middle_save_path <out>/middle/ \
   --class_num 4 --random_seed 42
 ```
 
-**Output**: `finetune_dataset/` containing `train_dataset.tsv`, `valid_dataset.tsv`, `test_dataset.tsv` (80/10/10 split).
-
-Each TSV line contains: `<label>\t<hex-encoded flow with [pck] delimiters>`
-
-### Step 2: Fine-tune Teacher (baseline)
+### Stage 2 — Baseline, Slim, from-scratch control, sweeps
 
 ```bash
+# Baseline model (12L/12H/3072):
 python finetune/run_understanding.py \
   --pretrained_model_path assets/pretrained_model.bin \
-  --output_model_path models/teacher.bin \
   --vocab_path models/encryptd_vocab.txt \
-  --config_path models/gpt2/config.json \
-  --train_path finetune_dataset/train_dataset.tsv \
-  --dev_path finetune_dataset/valid_dataset.tsv \
-  --test_path finetune_dataset/test_dataset.tsv \
-  --epochs_num 10 --batch_size 16 --seq_length 64 \
-  --labels_num 4 --pooling mean --learning_rate 2e-5
+  --config_path configs/teacher.json \
+  --train_path finetune_dataset_toniot/train_dataset.tsv \
+  --dev_path   finetune_dataset_toniot/valid_dataset.tsv \
+  --test_path  finetune_dataset_toniot/test_dataset.tsv \
+  --epochs_num 4 --batch_size 16 --seq_length 64 --labels_num 4 \
+  --learning_rate 2e-5 --pooling mean --seed 42 \
+  --output_model_path models/teacher_toniot.bin
+
+# NetGPT-Slim: same command with --config_path configs/slim.json
+# From-scratch control: same as Slim but WITHOUT --pretrained_model_path
+# Sweeps: loop over configs/depth_*.json, configs/w1L_*.json,
+#         configs/width_*.json (see sweep_sub256.sh and logs/toniot/)
 ```
 
-### Step 3: Fine-tune NetGPT-Slim
-
-The Slim model uses a reduced architecture (1 layer, d_ff=256). The script uses **shape-aware loading**: pretrained weights with matching shapes are loaded, while mismatched weights (FFN layers) are randomly initialized.
+### Stage 3 — Localization of the discriminative computation
 
 ```bash
-python finetune/run_understanding.py \
-  --pretrained_model_path assets/pretrained_model.bin \
-  --output_model_path models/slim_final.bin \
+python analysis/extract_phi0.py \
+  --pretrained_model_path models/teacher_toniot.bin \
+  --config_path configs/teacher.json \
   --vocab_path models/encryptd_vocab.txt \
-  --config_path models/gpt2/slim_final_config.json \
-  --train_path finetune_dataset/train_dataset.tsv \
-  --dev_path finetune_dataset/valid_dataset.tsv \
-  --test_path finetune_dataset/test_dataset.tsv \
-  --epochs_num 10 --batch_size 16 --seq_length 64 \
-  --labels_num 4 --pooling mean --learning_rate 2e-5
+  --train_path finetune_dataset_toniot/train_dataset.tsv \
+  --test_path  finetune_dataset_toniot/test_dataset.tsv \
+  --seq_length 64 --batch_size 16 --seed 42
+python analysis/analyze_phi0.py
 ```
 
-### Step 4: Pruning Analysis
-
-Run global pruning at multiple sparsity levels to characterize the compressibility cliff:
+### Stage 4 — Global pruning with four metrics (incl. random baseline)
 
 ```bash
-for SPARSITY in 0.5 0.6 0.7 0.74 0.76 0.78 0.8 0.9; do
-  for METRIC in magnitude wanda pruner_zero; do
+for M in magnitude wanda pruner_zero random; do
+  for S in 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.72 0.74 0.76 0.78 0.8 0.9; do
     python pruning/run_pruning_global.py \
-      --pretrained_model_path models/slim_final.bin \
-      --config_path models/gpt2/slim_final_config.json \
+      --pretrained_model_path models/slim_toniot.bin \
+      --config_path configs/slim.json \
       --vocab_path models/encryptd_vocab.txt \
-      --train_path finetune_dataset/train_dataset.tsv \
-      --dev_path finetune_dataset/valid_dataset.tsv \
-      --test_path finetune_dataset/test_dataset.tsv \
-      --seq_length 64 --labels_num 4 --batch_size 32 \
-      --pooling mean --metric $METRIC --sparsity $SPARSITY --seed 42
+      --train_path finetune_dataset_toniot/train_dataset.tsv \
+      --dev_path   finetune_dataset_toniot/valid_dataset.tsv \
+      --test_path  finetune_dataset_toniot/test_dataset.tsv \
+      --labels_num 4 --pooling mean --seq_length 64 --batch_size 16 \
+      --seed 42 --metric $M --sparsity $S --n_calib 128 \
+      --output_dir results/pruning_toniot
   done
 done
 ```
 
-### Step 5: Internal Representation Analysis
-
-```bash
-# SVD of FFN weight matrices (effective rank)
-python analysis/svd_analysis.py \
-  --model_path models/teacher.bin \
-  --config_path models/gpt2/config.json \
-  --vocab_path models/encryptd_vocab.txt --pooling mean
-
-# PCA of post-GELU activations (effective dimensionality)
-python analysis/activation_pca.py \
-  --model_path models/teacher.bin \
-  --config_path models/gpt2/config.json \
-  --vocab_path models/encryptd_vocab.txt \
-  --calib_path finetune_dataset/train_dataset.tsv \
-  --n_calib 200 --pooling mean
-
-# GELU activation rate per layer
-python analysis/measure_gelu_rate.py
-```
-
----
+Calibration (Wanda activations, Pruner-Zero gradients) uses 128 samples from
+the training split only.
 
 ## Important Notes
 
-### Pooling Strategy
-Always use `--pooling mean`. The pretrained model was designed for mean pooling over all tokens. Using the default `first` pooling drops accuracy to ~50%.
+- **Never change the head count under pretrained-weight reuse.** With
+  `hidden_size=768`, going from 12 to 8 heads keeps every tensor shape
+  identical but re-partitions the learned 64-dim head sub-spaces into
+  incoherent 96-dim slices; accuracy collapses to chance
+  (`configs/scramble.json` reproduces this).
+- **Never truncate a fine-tuned FFN to initialize a narrower one.**
+  Truncated weights underperform random initialization (truncation
+  toxicity); NetGPT-Slim re-initializes the narrowed FFN and inherits only
+  attention and embeddings (shape-aware loading).
+- **Always use `--pooling mean`.** The pretrained model expects mean pooling;
+  the default `first` pooling collapses accuracy.
+- **The legacy binary benchmark is audit material only.** Every number
+  obtained on it (100%) reflects the `0xDADA` capture artifact, not traffic
+  semantics; all scientific claims rest on ToN-IoT-Clean.
 
-### Head Count Constraint
-**Never change the number of attention heads** when loading from a pretrained checkpoint. Changing from 12 to 8 heads with the same hidden_size=768 produces identical weight matrix shapes (768×768), but the internal head structure is scrambled: pretrained heads of 64 dimensions are reinterpreted as heads of 96 dimensions, mixing independently learned sub-spaces. This destroys the pretrained attention patterns and accuracy drops to chance level. Always keep `heads_num` matching the pretrained model.
+## Reproducibility
 
-### Shape-Aware Loading
-When using a config with different FFN dimensions than the pretrained model (e.g., d_ff=256 vs 3072), `run_understanding.py` performs shape-aware loading: weights with matching shapes are copied from the checkpoint, while mismatched shapes are skipped and left randomly initialized. This is essential for the architectural sweep experiments.
+All experiments use fixed seeds and the single 4-epoch protocol above. The
+logs behind every figure and table of the paper are in `logs/toniot/`
+(training + test evaluation of each of the 23 configurations, audit runs,
+pruning sweep) and `results/`. Statistical convention: on n=2,000 test flows
+the 95% confidence half-width is ±1.24 points; single-run accuracies within
+this margin are reported as indistinguishable.
 
-### Sequence Length
-`seq_length=64` is optimal for attack detection. Attack signatures (SYN floods, port scans, malformed headers) are detectable in early packet headers and handshakes — longer sequences add no discriminative information.
+## Authors
 
----
-
-## Theoretical Framework
-
-### Minimum FFN Width (Equation 3 in paper)
-
-We derive a lower bound on the FFN intermediate dimension based on activation analysis:
-
-```
-d_ff_min = r_τ / ᾱ
-```
-
-where:
-- **r_τ** = effective rank of post-GELU activations at energy threshold τ (measured by PCA)
-- **ᾱ** = mean GELU activation rate (fraction of neurons producing output > 0)
-
-**Measured values** (on the 12-layer teacher):
-- r₉₅ = 32, ᾱ = 0.146 → d_ff_min ≈ 219, rounded to **256 = 2⁸**
-
-This prediction is validated empirically: d_ff=256 achieves 98.06% accuracy (equal to the teacher with d_ff=3072).
-
-**Interpretation**: GELU activation acts as a sparse gate, activating only ~15% of FFN neurons per input. For the active subset to span the r_τ-dimensional activation sub-space, the total number of neurons must be at least r_τ/ᾱ.
-
----
-
-## Reproducing Key Results
-
-### Architectural Sweeps
-
-To verify that depth and FFN width have no impact on performance:
-
-```bash
-# Layer sweep: create configs for 1 to 6 layers
-for NL in 1 2 3 4 5 6; do
-  sed "s/\"layers_num\": 6/\"layers_num\": $NL/" models/gpt2/distil_config.json \
-    > models/gpt2/distil_L${NL}.json
-done
-
-# d_ff sweep: create configs for various FFN widths
-for DFF in 256 512 768 1024 1536 2048 3072; do
-  sed "s/\"feedforward_size\": 3072/\"feedforward_size\": $DFF/" models/gpt2/distil_config.json \
-    > models/gpt2/distil_ff${DFF}.json
-done
-
-# Run each config with the same training command as Step 3
-```
-
-### Head Boundary Scrambling Experiment
-
-To reproduce the head scrambling failure:
-
-```bash
-# Create a config with 8 heads (same hidden_size=768)
-# This will load pretrained weights (shapes match) but accuracy will be ~50%
-sed 's/"heads_num": 12/"heads_num": 8/' models/gpt2/distil_config.json \
-  > models/gpt2/distil_8heads.json
-
-python finetune/run_understanding.py \
-  --pretrained_model_path assets/pretrained_model.bin \
-  --output_model_path models/test_8heads.bin \
-  --vocab_path models/encryptd_vocab.txt \
-  --config_path models/gpt2/distil_8heads.json \
-  --train_path finetune_dataset/train_dataset.tsv \
-  --dev_path finetune_dataset/valid_dataset.tsv \
-  --test_path finetune_dataset/test_dataset.tsv \
-  --epochs_num 10 --batch_size 16 --seq_length 64 \
-  --labels_num 4 --pooling mean --learning_rate 2e-5
-# Expected result: ~50% accuracy (chance level)
-```
-
----
+- **Romain Tesseyre** — Université de Technologie de Compiègne (UTC) &
+  CBio Laboratory, UFPR, Curitiba, Brazil
+- **Bruno Meyer** — CBio Laboratory, UFPR
+- **Aurora Trinidad Ramirez Pozo** — CBio Laboratory, UFPR
 
 ## References
 
 | Reference | Description |
 |-----------|-------------|
-| [NetGPT (Wu et al., 2023)](https://arxiv.org/abs/2304.09513) | GPT-2-based foundation model for network traffic understanding and generation |
-| [UER-py (Zhao et al., 2019)](https://github.com/dbiir/UER-py) | Open-source PyTorch toolkit for pre-training and fine-tuning Transformer models |
-| [Wanda (Sun et al., ICLR 2024)](https://github.com/locuslab/wanda) | Pruning metric combining weight magnitude and input activation norms |
-| [Pruner-Zero (Dong et al., ICML 2024)](https://github.com/pprp/Pruner-Zero) | Automatically discovered pruning metric via genetic programming |
-| [DistilBERT (Sanh et al., 2019)](https://arxiv.org/abs/1910.01108) | Knowledge distillation for BERT with every-other-layer initialization |
-| [Lottery Ticket Hypothesis (Frankle & Carlin, 2019)](https://arxiv.org/abs/1803.03635) | Dense networks contain sparse trainable subnetworks |
-| [Focal Loss (Lin et al., ICCV 2017)](https://arxiv.org/abs/1708.02002) | Loss function addressing class imbalance in classification |
-| [BoT-IoT (Koroniotis et al., 2019)](https://doi.org/10.1016/j.future.2019.05.027) | IoT botnet dataset for network forensic analytics |
-
----
-
-## Authors
-
-- **Romain Tesseyre** — Research intern, CBio Laboratory, UFPR, Curitiba, Brazil
-- **Aurora Trinidad Ramirez Pozo** — Supervisor, UFPR
+| [NetGPT (Meng et al., 2023)](https://arxiv.org/abs/2304.09513) | GPT-2 foundation model for network traffic |
+| [UER-py (Zhao et al., 2019)](https://github.com/dbiir/UER-py) | Pre-training/fine-tuning toolkit |
+| [Wanda (Sun et al., ICLR 2024)](https://github.com/locuslab/wanda) | Activation-aware pruning metric |
+| [Pruner-Zero (Dong et al., ICML 2024)](https://github.com/pprp/Pruner-Zero) | Evolved symbolic pruning metric |
+| [ToN-IoT (Alsaedi et al., 2020)](https://research.unsw.edu.au/projects/toniot-datasets) | IoT/IIoT datasets with per-flow ground truth |
+| [Arp et al., USENIX Security 2022](https://www.usenix.org/conference/usenixsecurity22/presentation/arp) | Pitfalls of ML for security (audit rationale) |
+| [Geirhos et al., 2020](https://www.nature.com/articles/s42256-020-00257-z) | Shortcut learning in deep networks |
+| [Blalock et al., MLSys 2020](https://arxiv.org/abs/2003.03033) | State of neural network pruning (random-baseline standard) |
+| [Liu et al., ICLR 2019](https://arxiv.org/abs/1810.05270) | Rethinking the value of network pruning (from-scratch control) |
 
 ## License
 
-This project builds upon [UER-py](https://github.com/dbiir/UER-py) and [NetGPT](https://arxiv.org/abs/2304.09513). Please refer to the original projects for licensing terms.
+This project builds upon [UER-py](https://github.com/dbiir/UER-py) and
+[NetGPT](https://arxiv.org/abs/2304.09513). Please refer to the original
+projects for licensing terms.
